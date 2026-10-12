@@ -4,7 +4,6 @@ import com.puzzlechannel.vmtrade.TransactionGuard;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -15,7 +14,7 @@ public abstract class ServerTransactionGuardMixin {
     private static final int MAX_BULK_QUANTITY = 4096;
 
     @Inject(method = "handleBuy", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardBuy(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardBuy(net.onlyjugs.net.BuyListingPayload payload, ServerPlayer player, CallbackInfo ci) {
         if (!validItemKey(stringValue(payload, "itemKey")) || !validPrice(intValue(payload, "unitPrice"))
                 || intValue(payload, "quantity") < 0 || intValue(payload, "quantity") > MAX_BULK_QUANTITY) {
             ci.cancel(); return;
@@ -24,7 +23,7 @@ public abstract class ServerTransactionGuardMixin {
     }
 
     @Inject(method = "handleBuyUniqueStack", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardUniqueBuy(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardUniqueBuy(net.onlyjugs.net.BuyUniqueStackPayload payload, ServerPlayer player, CallbackInfo ci) {
         if (value(payload, "chestPos") == null || intValue(payload, "slot") < 0 || intValue(payload, "slot") >= 27
                 || !validPrice(intValue(payload, "expectedUnitPrice"))
                 || intValue(payload, "requestedQty") < 1 || intValue(payload, "requestedQty") > 1000) {
@@ -34,14 +33,14 @@ public abstract class ServerTransactionGuardMixin {
     }
 
     @Inject(method = "handleWallet", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardWallet(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardWallet(net.onlyjugs.net.WalletActionPayload payload, ServerPlayer player, CallbackInfo ci) {
         int amount = intValue(payload, "amount");
         if (amount < -1_000_000 || amount > 1_000_000) { ci.cancel(); return; }
         guard(player, "wallet", payload, ci);
     }
 
     @Inject(method = "handlePlaceBuyOrder", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardPlaceOrder(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardPlaceOrder(net.onlyjugs.net.PlaceBuyOrderPayload payload, ServerPlayer player, CallbackInfo ci) {
         if (!validItemKey(stringValue(payload, "itemKey")) || !validPrice(intValue(payload, "unitPrice"))
                 || intValue(payload, "quantity") < 1 || intValue(payload, "quantity") > MAX_BULK_QUANTITY) {
             ci.cancel(); return;
@@ -50,13 +49,13 @@ public abstract class ServerTransactionGuardMixin {
     }
 
     @Inject(method = "handleCancelBuyOrder", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardCancelOrder(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardCancelOrder(net.onlyjugs.net.CancelBuyOrderPayload payload, ServerPlayer player, CallbackInfo ci) {
         if (value(payload, "orderId") == null) { ci.cancel(); return; }
         guard(player, "cancel-buy-order", payload, ci);
     }
 
     @Inject(method = "handleVillagerExecute", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardVillagerTrade(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardVillagerTrade(net.onlyjugs.net.VillagerExecuteTradePayload payload, ServerPlayer player, CallbackInfo ci) {
         if (intValue(payload, "entityId") < 0 || intValue(payload, "offerIndex") < 0
                 || intValue(payload, "offerIndex") > 1024 || intValue(payload, "quantity") < 1
                 || intValue(payload, "quantity") > 64) { ci.cancel(); return; }
@@ -64,7 +63,7 @@ public abstract class ServerTransactionGuardMixin {
     }
 
     @Inject(method = "handleSetListing", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardSetListing(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardSetListing(net.onlyjugs.net.SetListingPayload payload, ServerPlayer player, CallbackInfo ci) {
         int price = intValue(payload, "price");
         if (intValue(payload, "slot") < 0 || intValue(payload, "slot") >= 27 || price < 0
                 || price > MAX_PRICE_CENTS || (price > 0 && price < 3)) { ci.cancel(); return; }
@@ -72,14 +71,14 @@ public abstract class ServerTransactionGuardMixin {
     }
 
     @Inject(method = "handleListStage", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardListStage(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardListStage(net.onlyjugs.net.ListStagePayload payload, ServerPlayer player, CallbackInfo ci) {
         int price = intValue(payload, "priceCents");
         if (price < 3 || price > MAX_PRICE_CENTS) { ci.cancel(); return; }
         guard(player, "list-stage", payload, ci);
     }
 
     @Inject(method = "handleCancelStageListing", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void vmtrade$guardCancelStage(@Coerce Object payload, ServerPlayer player, CallbackInfo ci) {
+    private static void vmtrade$guardCancelStage(net.onlyjugs.net.CancelStageListingPayload payload, ServerPlayer player, CallbackInfo ci) {
         guard(player, "cancel-stage-listing", payload, ci);
     }
 
