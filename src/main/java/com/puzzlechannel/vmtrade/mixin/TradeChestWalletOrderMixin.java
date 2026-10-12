@@ -34,13 +34,25 @@ public abstract class TradeChestWalletOrderMixin {
             setMessage(deposit, "Пополнить");
             setMessage(withdraw, "Вывести");
 
-            // The amount box keeps the existing 9-digit limit, but only accepts
-            // digits so a typo cannot silently reset the field when the button is pressed.
+            // Rebalance the wallet row to show the full supported 1,000,000 amount
+            // without squeezing the two action buttons against the panel edge.
+            int left = readIntField(this, "left");
             Object amount = readField(this, "amount");
             if (amount != null) {
+                writeIntField(amount, "x", left + 4);
+                writeIntField(amount, "width", 44);
+                writeIntField(withdraw, "x", left + 50);
+                writeIntField(withdraw, "width", 56);
+                writeIntField(deposit, "x", left + 108);
+                writeIntField(deposit, "width", 60);
+
+                // The wallet transaction already caps a single action at 1,000,000.
+                // Prevent the UI accepting a larger number that would be silently clamped.
                 Method maxLength = amount.getClass().getMethod("setMaxLength", int.class);
-                maxLength.invoke(amount, 9);
-                Predicate<String> digitsOnly = value -> value != null && value.matches("[0-9]{0,9}");
+                maxLength.invoke(amount, 7);
+                Predicate<String> digitsOnly = value -> value != null
+                        && value.matches("[0-9]{0,7}")
+                        && (value.isEmpty() || Integer.parseInt(value) <= 1_000_000);
                 boolean filterInstalled = false;
                 for (Class<?> type = amount.getClass(); type != null && !filterInstalled; type = type.getSuperclass()) {
                     for (Method method : type.getDeclaredMethods()) {
