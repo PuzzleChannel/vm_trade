@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.core.Registry;
 
 public final class VmTradeInitializer implements ModInitializer {
@@ -53,7 +54,10 @@ public final class VmTradeInitializer implements ModInitializer {
 
     private static void registerMarket() {
         MARKET = Registry.register(registry("BLOCK"), MARKET_KEY,
-                new MarketBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHEST).setId(MARKET_KEY).strength(3.5f)));
+                new MarketBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHEST)
+                        .setId(MARKET_KEY)
+                        .strength(-1.0f, 3600000.0f)
+                        .pushReaction(PushReaction.BLOCK)));
         ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, id("market"));
         MARKET_ITEM = Registry.register(registry("ITEM"), itemKey,
                 new BlockItem(MARKET, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
