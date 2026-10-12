@@ -54,3 +54,10 @@ jobs:
             build/libs/vm-trade-*.jar
             !build/libs/*-sources.jar
           if-no-files-found: error
+
+      - name: Upload previous UI build for regression comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: VMTrade-1.0.26-ui-reference
+          path: VMTrade-1.0.26-ui-deselect-back-alignment.jar
+          if-no-files-found: error
