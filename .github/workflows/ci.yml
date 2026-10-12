@@ -54,3 +54,7 @@ jobs:
 
           javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk '/lambda\\$buildOurWidgets\\$0\\(/,/lambda\\$buildOurWidgets\\$1\\(/'
           javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk '/private void renderRightPanel\\(/,/private java.lang.String fit\\(/'
+          echo '--- Relevant upstream classes ---'
+          jar tf vendor/open-trade-1.4.2.jar | grep -E 'net/onlyjugs/client/screen/.*class|BackTo.*Payload.class|net/onlyjugs/net/OpenTradeNet.class' || true
+          echo '--- Server handler for BackToTradeChestPayload ---'
+          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.net.OpenTradeNet | grep -n -E -A45 -B12 'BackToTradeChestPayload|handleBackToTradeChest' || true
