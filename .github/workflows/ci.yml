@@ -51,3 +51,6 @@ jobs:
         run: |
           javap -classpath vendor/open-trade-1.4.2.jar -p net.onlyjugs.client.screen.MarketScreen
           javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | grep -n -E -A45 -B12 'Back|Sell Orders|Recent Trades' || true
+
+          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk '/lambda\\$buildOurWidgets\\$0\\(/,/lambda\\$buildOurWidgets\\$1\\(/'
+          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk '/private void renderRightPanel\\(/,/private java.lang.String fit\\(/'
