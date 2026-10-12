@@ -20,7 +20,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
     if "vmtrade-custom.mixins.json" not in meta.get("mixins",[]): raise AssertionError("Custom Mixin config is not registered in Fabric metadata")
     if main.get("package")!="net.onlyjugs.fabric.mixin" or main.get("mixins")!=["MinecraftServerTickMixin","ServerPlayerGameModeMixin","MerchantOpenScreenMixin"] or main.get("client",[])!=["CurrencyDisplayMixin","ItemKeysLabelMixin"]: raise AssertionError("Upstream Mixin config unexpectedly contains custom classes")
     expected_server=["CancelListingReturnMixin","ServerTransactionGuardMixin","VmTradeUiTranslationServerMixin"]
-    expected_client=["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin"]
+    expected_client=["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin","TradeChestScreenPolishMixin"]
     if custom.get("package")!="com.puzzlechannel.vmtrade.mixin" or custom.get("mixins")!=expected_server or custom.get("client")!=expected_client: raise AssertionError("VM Trade mixins are not isolated/configured correctly")
     for n in expected_server+expected_client:
         p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"
@@ -32,7 +32,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         if p in names: raise AssertionError(f"Development stub leaked: {p}")
     for p in ("net/onlyjugs/client/screen/MarketScreen.class","net/onlyjugs/client/screen/TradeChestScreen.class","net/onlyjugs/net/OpenTradeNet.class","net/onlyjugs/OpenTradeConfig.class"):
         if p not in names or p not in vendor.namelist() or release.read(p)!=vendor.read(p): raise AssertionError(f"Critical upstream class missing/modified: {p}")
-required_own=("com/puzzlechannel/vmtrade/VmTradeInitializer.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.class","com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class","com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.class","com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.class","com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.class")
+required_own=("com/puzzlechannel/vmtrade/VmTradeInitializer.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.class","com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class","com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestScreenPolishMixin.class","com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.class","com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.class")
 with ZipFile(jar_path) as release:
     names=set(release.namelist())
     for p in required_own:

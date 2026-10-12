@@ -11,7 +11,8 @@
     "UiTranslationClientMixin",
     "MarketScreenLayoutMixin",
     "MarketReturnClientMixin",
-    "TradeChestWalletOrderMixin"
+    "TradeChestWalletOrderMixin",
+    "TradeChestScreenPolishMixin"
   ],
   "injectors": {
     "defaultRequire": 1

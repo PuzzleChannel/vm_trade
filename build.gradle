@@ -160,7 +160,7 @@ tasks.register('verifyJar') {
             def customMixinConfig = new groovy.json.JsonSlurper().parse(zip.getInputStream(customConfigEntry))
             if (customMixinConfig.package != 'com.puzzlechannel.vmtrade.mixin') throw new GradleException('VM Trade custom mixin package is not isolated')
             if (customMixinConfig.mixins != ['CancelListingReturnMixin', 'ServerTransactionGuardMixin', 'VmTradeUiTranslationServerMixin']) throw new GradleException('Unexpected VM Trade server mixin list')
-            if (customMixinConfig.client != ['UiTranslationClientMixin', 'MarketScreenLayoutMixin', 'MarketReturnClientMixin', 'TradeChestWalletOrderMixin']) throw new GradleException('Unexpected VM Trade client mixin list')
+            if (customMixinConfig.client != ['UiTranslationClientMixin', 'MarketScreenLayoutMixin', 'MarketReturnClientMixin', 'TradeChestWalletOrderMixin', 'TradeChestScreenPolishMixin']) throw new GradleException('Unexpected VM Trade client mixin list')
             def customMixinNames = customMixinConfig.mixins + customMixinConfig.client
             customMixinNames.each { name ->
                 def entry = zip.getEntry('com/puzzlechannel/vmtrade/mixin/' + name + '.class')
