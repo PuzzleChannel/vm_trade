@@ -6,7 +6,6 @@
     "MinecraftServerTickMixin",
     "ServerPlayerGameModeMixin",
     "MerchantOpenScreenMixin",
-    "VmTradeUiTranslationServerMixin",
     "CancelListingReturnMixin",
     "ServerTransactionGuardMixin"
   ],

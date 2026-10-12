@@ -82,6 +82,7 @@ tasks.jar {
     from(sourceSets.main.output) {
         // Prevent a stale incremental class from reintroducing the colliding old name.
         exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class'
     }
 }
 
@@ -106,6 +107,7 @@ tasks.register('verifyJar') {
             def required = [
                 'fabric.mod.json',
                 'vmtrade.mixins.json',
+                'vmtrade-server.mixins.json',
                 'opentrade.accesswidener',
                 'assets/opentrade/lang/ru_ru.json',
                 'assets/vmtrade/lang/ru_ru.json',
@@ -126,10 +128,16 @@ tasks.register('verifyJar') {
             if (mixins.contains('MarketScreenTranslationMixin')) throw new GradleException('Unsafe translation mixin is present')
             def mixinConfig = new groovy.json.JsonSlurper().parse(new java.io.ByteArrayInputStream(mixins.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
             if (mixinConfig.mixins.contains('UiTranslationServerMixin')) throw new GradleException('Old colliding server translation mixin is still enabled')
-            if (!mixinConfig.mixins.contains('VmTradeUiTranslationServerMixin')) throw new GradleException('Unique server translation mixin is missing from config')
+            if (mixinConfig.mixins.contains('VmTradeUiTranslationServerMixin')) throw new GradleException('Server translation mixin must use the isolated VM Trade config')
             if (zip.getEntry('net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class') != null) throw new GradleException('Old colliding server translation mixin class leaked into output')
-            def serverMixinEntry = zip.getEntry('net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class')
-            if (serverMixinEntry == null) throw new GradleException('Unique server translation mixin class is missing from output')
+            if (zip.getEntry('net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class') != null) throw new GradleException('Server translation mixin still uses the upstream namespace')
+            def serverConfigEntry = zip.getEntry('vmtrade-server.mixins.json')
+            if (serverConfigEntry == null) throw new GradleException('Isolated VM Trade server mixin config is missing')
+            def serverMixinConfig = new groovy.json.JsonSlurper().parse(zip.getInputStream(serverConfigEntry))
+            if (serverMixinConfig.package != 'com.puzzlechannel.vmtrade.mixin') throw new GradleException('Server translation mixin package is not isolated')
+            if (serverMixinConfig.mixins != ['VmTradeUiTranslationServerMixin']) throw new GradleException('Unexpected isolated server mixin config')
+            def serverMixinEntry = zip.getEntry('com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class')
+            if (serverMixinEntry == null) throw new GradleException('Isolated VM Trade server translation mixin class is missing')
             def serverMixinBytes = zip.getInputStream(serverMixinEntry).readAllBytes()
             def serverMixinConstants = new String(serverMixinBytes, java.nio.charset.StandardCharsets.ISO_8859_1)
             if (!serverMixinConstants.contains('Lorg/spongepowered/asm/mixin/Mixin;')) throw new GradleException('Packaged server translation mixin lacks the @Mixin annotation descriptor')

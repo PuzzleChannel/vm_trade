@@ -13,7 +13,7 @@ with ZipFile(jar) as z:
   assert meta.get("accessWidener")=="opentrade.accesswidener" and "opentrade.accesswidener" in names
   required=[
   'com/puzzlechannel/vmtrade/MarketBlock.class',
-    "fabric.mod.json","vmtrade.mixins.json","opentrade.accesswidener",
+    "fabric.mod.json","vmtrade.mixins.json","vmtrade-server.mixins.json","opentrade.accesswidener",
     "assets/opentrade/lang/ru_ru.json","assets/vmtrade/lang/ru_ru.json",
     "assets/vmtrade/models/block/market.json","assets/vmtrade/items/market.json",
     "assets/vmtrade/models/item/market.json","assets/vmtrade/blockstates/market.json",
@@ -25,7 +25,10 @@ with ZipFile(jar) as z:
   assert "MarketScreenTranslationMixin" not in mix.get("client",[])
   assert "UiTranslationClientMixin" in mix.get("client",[])
   assert "UiTranslationServerMixin" not in mix.get("mixins",[])
-  assert "VmTradeUiTranslationServerMixin" in mix.get("mixins",[])
+  assert "VmTradeUiTranslationServerMixin" not in mix.get("mixins",[])
+  server_cfg=json.loads(z.read("vmtrade-server.mixins.json"))
+  assert server_cfg["package"]=="com.puzzlechannel.vmtrade.mixin"
+  assert server_cfg.get("mixins")==["VmTradeUiTranslationServerMixin"]
   assert mix["package"]=="net.onlyjugs.fabric.mixin"
   for tex in ["market_front.png","market_side.png","market_top.png","market_bottom.png"]:
     im=Image.open(io.BytesIO(z.read("assets/vmtrade/textures/block/"+tex))).convert("RGBA")
@@ -41,7 +44,7 @@ with ZipFile(jar) as z:
     vendor_class_names={n for n in pristine.namelist() if n.startswith("net/onlyjugs/") and n.endswith(".class")}
     excluded_vendor_classes={
       "net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class",
-      "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class",
+      "com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class",
     }
     for name in sorted(vendor_class_names - excluded_vendor_classes):
       if name in names:
@@ -55,9 +58,10 @@ with ZipFile(jar) as z:
   assert "net/onlyjugs/fabric/mixin/VmTradeServerTextMixin.class" not in names
   assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" in names
   assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
-  assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" in names
+  assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" not in names
+  assert "com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class" in names
   assert b"RuntimeVisibleAnnotations" in z.read("net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class")
-  server_mix=z.read("net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class")
+  server_mix=z.read("com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class")
   assert b"RuntimeVisibleAnnotations" in server_mix
   assert b"Lorg/spongepowered/asm/mixin/Mixin;" in server_mix
   mb=z.read('com/puzzlechannel/vmtrade/MarketBlock.class')

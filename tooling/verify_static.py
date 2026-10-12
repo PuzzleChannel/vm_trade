@@ -12,18 +12,23 @@ with zipfile.ZipFile(jar) as z:
     assert meta["depends"]["minecraft"]==">=26.2 <26.3"
     assert meta.get("accessWidener")=="opentrade.accesswidener"
     assert "opentrade.accesswidener" in names
+    assert "vmtrade-server.mixins.json" in names
     assert "net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class" not in names
     assert "opentrade-fabric.mixins.json" not in names
     assert "opentrade-neoforge.mixins.json" not in names
     assert "net/onlyjugs/fabric/mixin/MarketScreenTranslationMixin.class" not in names
     assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" in names
     assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
-    assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" in names
+    assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" not in names
+    assert "com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class" in names
     mix=json.loads(z.read("vmtrade.mixins.json"))
     assert "MarketScreenTranslationMixin" not in mix.get("client",[])
     assert "UiTranslationClientMixin" in mix.get("client",[])
     assert "UiTranslationServerMixin" not in mix.get("mixins",[])
-    assert "VmTradeUiTranslationServerMixin" in mix.get("mixins",[])
+    assert "VmTradeUiTranslationServerMixin" not in mix.get("mixins",[])
+    server_mixins=json.loads(z.read("vmtrade-server.mixins.json"))
+    assert server_mixins["package"]=="com.puzzlechannel.vmtrade.mixin"
+    assert server_mixins.get("mixins")==["VmTradeUiTranslationServerMixin"]
     init=z.read("com/puzzlechannel/vmtrade/VmTradeInitializer.class")
     market=z.read("com/puzzlechannel/vmtrade/MarketBlock.class")
     assert b"SimpleMenuProvider" not in market
