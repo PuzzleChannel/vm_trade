@@ -2,10 +2,14 @@ from pathlib import Path
 from zipfile import ZipFile
 from PIL import Image
 import io,json,sys
-jar=Path(sys.argv[1]) if len(sys.argv)>1 else Path("build/libs/vm-trade-1.0.20.jar")
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+VERSION=next((line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')),None)
+if not VERSION: raise SystemExit('version= missing from gradle.properties')
+jar=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT / f"build/libs/vm-trade-{VERSION}.jar"
 with ZipFile(jar) as z:
   names=set(z.namelist()); meta=json.loads(z.read("fabric.mod.json"))
-  assert meta["id"]=="vmtrade" and meta["version"]=="1.0.20"
+  assert meta["id"]=="vmtrade" and meta["version"]==VERSION
   assert meta.get("accessWidener")=="opentrade.accesswidener" and "opentrade.accesswidener" in names
   required=[
   'com/puzzlechannel/vmtrade/MarketBlock.class',
