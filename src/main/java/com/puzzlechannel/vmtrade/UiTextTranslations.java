@@ -54,7 +54,7 @@ public final class UiTextTranslations {
                 {"Qty", "Кол-во"}, {"qty", "кол-во"},
                 {"List", "Выставить"},
                 {"Cancel", "Отменить"},
-                {"Cancel buy order", "Отменить заявку"},
+                {"Cancel buy order", "Снять заявку"},
                 {"Search", "Поиск"},
                 {"Search items…", "Поиск предметов…"},
                 {"Search items?", "Поиск предметов…"},
@@ -74,16 +74,16 @@ public final class UiTextTranslations {
                 {"Item Detail", "Информация о предмете"},
                 {"No demand", "Нет спроса"},
                 {"Out of stock", "Нет в наличии"},
-                {"List for Sale", "Выставить на продажу"},
+                {"List for Sale", "Выставить"},
                 {"List Item", "Выставить предмет"},
-                {"Cancel Listing", "Снять объявление"},
+                {"Cancel Listing", "Снять"},
                 {"Cancel Sell Order", "Отменить заявку на продажу"},
                 {"Cancel Buy Order", "Отменить заявку на покупку"},
                 {"Place Buy Order", "Разместить заявку на покупку"},
                 {"Place Order", "Разместить заявку"},
                 {"Update Listing", "Обновить объявление"},
-                {"Withdraw", "Вывести"}, {"Deposit", "Внести"},
-                {"Withdraw 1 VC", "Вывести 1 ВК"}, {"Deposit 1 VC", "Внести 1 ВК"},
+                {"Withdraw", "Вывести"}, {"Deposit", "Пополнить"},
+                {"Withdraw 1 VC", "Вывести 1 ВК"}, {"Deposit 1 VC", "Пополнить на 1 ВК"},
                 {"Balance", "Баланс"},
                 {"Seller", "Продавец"}, {"Buyer", "Покупатель"}, {"Owner", "Владелец"},
                 {"Quantity", "Количество"}, {"Amount", "Количество"},
@@ -201,9 +201,9 @@ public final class UiTextTranslations {
                 {"§cTrade chest is full.", "§cТорговый сундук заполнен."},
                 {"§cYou can't buy your own listing.", "§cНельзя покупать собственное объявление."},
                 {"§cNo free slot in your Trade Chest to reserve for this order.", "§cВ торговом сундуке нет свободного слота для этой заявки."},
-                {"§7This is a Trade Chest owned by another player.", "§7Это не ваш Магазин"},
-                {"Trade Chest is owned by another player.", "Это не ваш Магазин"},
-                {"This trade chest is owned by another player.", "Это не ваш Магазин"},
+                {"§7This is a Trade Chest owned by another player.", "§7Это торговый сундук другого игрока."},
+                {"Trade Chest is owned by another player.", "Это торговый сундук другого игрока."},
+                {"This trade chest is owned by another player.", "Это торговый сундук другого игрока."},
                 {"§8Click to select. Shift-click Buy/Sell for up to 64.", "§8Нажмите для выбора. Shift + клик — купить или продать до 64 шт."}
         };
         for (String[] pair : full) s = replace(s, pair[0], pair[1]);
@@ -306,7 +306,6 @@ public final class UiTextTranslations {
         s = replace(s, "Trade Chest has active sale offers.", "В торговом сундуке есть активные объявления о продаже.");
         s = replace(s, "Trade Chest has an incoming delivery.", "В торговом сундуке есть входящая доставка.");
         s = replace(s, "Trade Chest has an open buy order.", "В торговом сундуке есть открытая заявка на покупку.");
-        s = replace(s, "Trade Chest is owned by another player.", "Это не ваш Магазин");
         s = replace(s, "§7+ ", "§7+ ");
 
         // 7) Currency normalization, including the original plural suffix that was
