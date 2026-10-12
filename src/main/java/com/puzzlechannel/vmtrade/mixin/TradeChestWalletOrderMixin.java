@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.function.Predicate;
 
 /**
  * Keeps the legacy wallet row in the requested order and wording:
@@ -32,6 +33,29 @@ public abstract class TradeChestWalletOrderMixin {
 
             setMessage(deposit, "Пополнить");
             setMessage(withdraw, "Вывести");
+
+            // The amount box keeps the existing 9-digit limit, but only accepts
+            // digits so a typo cannot silently reset the field when the button is pressed.
+            Object amount = readField(this, "amount");
+            if (amount != null) {
+                Method maxLength = amount.getClass().getMethod("setMaxLength", int.class);
+                maxLength.invoke(amount, 9);
+                Predicate<String> digitsOnly = value -> value != null && value.matches("[0-9]{0,9}");
+                boolean filterInstalled = false;
+                for (Class<?> type = amount.getClass(); type != null && !filterInstalled; type = type.getSuperclass()) {
+                    for (Method method : type.getDeclaredMethods()) {
+                        if (!"setFilter".equals(method.getName()) || method.getParameterCount() != 1) continue;
+                        Class<?> parameter = method.getParameterTypes()[0];
+                        if (parameter.isAssignableFrom(Predicate.class) || Predicate.class.isAssignableFrom(parameter)) {
+                            method.setAccessible(true);
+                            method.invoke(amount, digitsOnly);
+                            filterInstalled = true;
+                            break;
+                        }
+                    }
+                }
+                if (!filterInstalled) throw new NoSuchMethodException("EditBox.setFilter(Predicate)");
+            }
         } catch (ReflectiveOperationException | RuntimeException exception) {
             // UI polish must never prevent the trading screen from opening.
             System.err.println("[VM Trade] Could not arrange wallet controls: " + exception.getMessage());
