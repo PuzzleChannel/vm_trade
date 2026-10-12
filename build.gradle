@@ -68,6 +68,9 @@ tasks.jar {
             exclude 'opentrade-fabric.mixins.json'
             exclude 'assets/opentrade/lang/en_us.json'
             exclude 'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class'
+            // Prefer the locally compiled, annotated mixins over duplicate vendor classes.
+            exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
             exclude 'net/onlyjugs/neoforge/**'
             exclude 'opentrade-neoforge.mixins.json'
             exclude 'META-INF/forgix/**'
