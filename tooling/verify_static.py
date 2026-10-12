@@ -31,6 +31,8 @@ with zipfile.ZipFile(jar) as z:
         assert p in names,p
     assert "net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class" not in names
     assert "opentrade-fabric.mixins.json" not in names and "opentrade-neoforge.mixins.json" not in names
+    assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
+    assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" not in names
     assert "assets/opentrade/lang/en_us.json" not in names
     assert json.loads(z.read("assets/vmtrade/items/market.json"))["model"]["model"]=="vmtrade:block/market"
     assert json.loads(z.read("assets/vmtrade/models/item/market.json"))["parent"]=="vmtrade:block/market"
