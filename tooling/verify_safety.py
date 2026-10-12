@@ -77,6 +77,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         "net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class",
         "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class",
         "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class",
+        "net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class",
     )
     for path in required_own_classes:
         if path not in names:
