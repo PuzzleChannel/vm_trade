@@ -2,6 +2,10 @@ package com.puzzlechannel.vmtrade;
 
 import net.minecraft.server.level.ServerPlayer;
 import java.util.Iterator;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -20,11 +24,23 @@ public final class TransactionGuard {
 
     public static boolean allow(ServerPlayer player, String operation, Object payload) {
         if (player == null || operation == null || operation.isBlank() || payload == null) return false;
-        String text;
-        try { text = payload.toString(); }
-        catch (RuntimeException exception) { return false; }
-        String fingerprint = payload.getClass().getName() + ":" + text;
+        String fingerprint = fingerprint(payload);
+        if (fingerprint == null) return false;
         return allow(player.getUUID(), operation, fingerprint, System.nanoTime());
+    }
+
+    static String fingerprint(Object payload) {
+        if (payload == null) return null;
+        final String text;
+        try { text = payload.toString(); }
+        catch (RuntimeException exception) { return null; }
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(text.getBytes(StandardCharsets.UTF_8));
+            return payload.getClass().getName() + ":" + HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required by the Java runtime", impossible);
+        }
     }
 
     static boolean allow(UUID playerId, String operation, String fingerprint, long nowNanos) {
