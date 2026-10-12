@@ -276,7 +276,7 @@ public final class UiTextTranslations {
         // connector replacements so phrases such as "at a time" stay intact.
         s = replace(s, "§aChest converted to Trade Chest.", "§aСундук преобразован в торговый сундук.");
         s = replace(s, "§aOrder cancelled. Refunded ", "§aЗаявка отменена. Возвращено ");
-        s = replace(s, "§aOrder placed: filled ", "§aЗаявка размещена: сразу исполнено ");
+        s = replace(s, "§aOrder placed: filled ", "§aЗаявка размещена: исполнено ");
         s = replace(s, "§aBuy order placed for ", "§aЗаявка на покупку размещена: ");
         s = replace(s, "§aPurchased ", "§aКуплено ");
         s = replace(s, "§cCouldn't buy any — out of ", "§cНе удалось ничего купить — закончились ");
@@ -286,6 +286,7 @@ public final class UiTextTranslations {
         s = replace(s, "§cNot enough .", "§cНедостаточно .");
         s = replace(s, "§cYou have an active sell listing for this item. Cancel it before buying.", "§cУ вас есть активное объявление о продаже этого предмета. Отмените его перед покупкой.");
         s = replace(s, "§cYou have an open buy order for this item. Cancel it before selling.", "§cУ вас есть открытая заявка на покупку этого предмета. Отмените её перед продажей.");
+        s = replace(s, "§cYou already have a buy order for this item at  E. Cancel it first to use a different price.", "§cУ вас уже есть заявка на покупку этого предмета по цене  ВК. Сначала отмените её, чтобы изменить цену.");
         s = replace(s, "§cYour Trade Chest has no room for this item.", "§cВ вашем торговом сундуке нет места для этого предмета.");
         s = replace(s, "§cYour Trade Chest is no longer available.", "§cВаш торговый сундук больше недоступен.");
 
