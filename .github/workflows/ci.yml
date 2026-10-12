@@ -49,6 +49,8 @@ jobs:
       - name: Upload release JAR
         uses: actions/upload-artifact@v4
         with:
-          name: VMTrade-\${{ github.sha }}
-          path: build/libs/vm-trade-*.jar
+          name: VMTrade-1.0.28
+          path: |
+            build/libs/vm-trade-*.jar
+            !build/libs/*-sources.jar
           if-no-files-found: error
