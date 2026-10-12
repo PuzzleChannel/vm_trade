@@ -11,6 +11,8 @@ vendor_path=ROOT/"vendor/open-trade-1.4.2.jar"
 if not jar_path.is_file() or not vendor_path.is_file(): raise SystemExit("Release JAR or pristine vendor JAR is missing")
 with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
     names_list=[x.filename for x in release.infolist()]; names=set(names_list)
+    for p in ("net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class","net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class"):
+        if p in names: raise AssertionError(f"Stale upstream translation mixin leaked into release: {p}")
     duplicates=sorted({n for n in names_list if names_list.count(n)>1})
     if duplicates: raise AssertionError(f"Duplicate ZIP entries: {duplicates}")
     meta=json.loads(release.read("fabric.mod.json"))
