@@ -4,6 +4,7 @@ import subprocess
 import base64
 import re
 import tempfile
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = next((line.split('=', 1)[1].strip() for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')), None)
@@ -133,18 +134,30 @@ public class Runner {
 }
 '''
 
+# Gradle's normal Java source set is build/classes/java/main. Keep the
+# release_compile fallback for the standalone archive builder used by older tooling.
+CLASSES_DIR = ROOT / 'build/classes/java/main'
+if not CLASSES_DIR.is_dir():
+    CLASSES_DIR = ROOT / 'build/release_compile'
+STUBS_JAR = ROOT / 'build/api-stubs.jar'
+if not CLASSES_DIR.is_dir():
+    raise SystemExit('Compiled VM Trade classes are missing; run ./gradlew build first')
+if not STUBS_JAR.is_file():
+    raise SystemExit('API stubs jar is missing; run ./gradlew build first')
+CLASSPATH = os.pathsep.join((str(CLASSES_DIR), str(STUBS_JAR)))
+
 with tempfile.TemporaryDirectory() as td_raw:
     td = Path(td_raw)
     runner = td / 'Runner.java'
     runner.write_text(runner_source, encoding='utf-8')
     subprocess.run([
         'javac', '--release', '21', '-encoding', 'UTF-8',
-        '-cp', str(ROOT / 'build/release_compile'), '-d', str(td), str(runner)
+        '-cp', CLASSPATH, '-d', str(td), str(runner)
     ], check=True)
 
     payload = ''.join(base64.b64encode(s.encode('utf-8')).decode('ascii') + '\n' for s in vals)
     proc = subprocess.run([
-        'java', '-Dfile.encoding=UTF-8', '-cp', f'{ROOT / "build/release_compile"}:{ROOT / "build/api-stubs.jar"}:{td}', 'Runner'
+        'java', '-Dfile.encoding=UTF-8', '-cp', os.pathsep.join((CLASSPATH, str(td))), 'Runner'
     ], input=payload.encode('ascii'), stdout=subprocess.PIPE, check=True)
     out = [base64.b64decode(x).decode('utf-8') for x in proc.stdout.splitlines()]
     lookup = dict(zip(vals, out))
