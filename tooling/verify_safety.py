@@ -66,7 +66,7 @@ if 'intValue(payload, "quantity") < 1' not in transaction:
     raise AssertionError("Buy handler must reject zero-quantity packets")
 
 wallet_ui=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.java").read_text(encoding="utf-8")
-for needle in ('value.matches("[0-9]{0,7}")', 'Integer.parseInt(value) <= 1_000_000', 'writeIntField(amount, "width", 44)'):
+for needle in ('value.matches("[0-9]{0,7}")', 'Integer.parseInt(value) > 0', 'Integer.parseInt(value) <= 1_000_000', 'writeIntField(amount, "width", 44)'):
     if needle not in wallet_ui:
         raise AssertionError(f"Wallet UI is missing release input/layout guard: {needle}")
 
