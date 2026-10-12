@@ -68,6 +68,10 @@ tasks.jar {
             exclude 'opentrade-fabric.mixins.json'
             exclude 'assets/opentrade/lang/en_us.json'
             exclude 'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class'
+            // These names are also present in some vendor builds. Exclude vendor copies
+            // so the annotated rework mixins from sourceSets.main.output are packaged.
+            exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
             exclude 'net/onlyjugs/neoforge/**'
             exclude 'opentrade-neoforge.mixins.json'
             exclude 'META-INF/forgix/**'
@@ -109,7 +113,7 @@ tasks.register('verifyJar') {
                 'assets/vmtrade/blockstates/market.json',
                 'data/vmtrade/recipes/market.json'
             ]
-            required.each { if (zip.getEntry(it) == null) throw new GradleException("Missing output entry: $it") }
+            required.each { if (zip.getEntry(it) == null) throw new GradleException("Missing output entry: ${it}") }
             def meta = new groovy.json.JsonSlurper().parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
             if (meta.id != 'vmtrade') throw new GradleException('Wrong mod id')
             if (meta.version != project.version.toString()) throw new GradleException("Wrong VM Trade version: ${meta.version}")
@@ -133,7 +137,7 @@ tasks.register('verifyJar') {
                  'net/onlyjugs/net/OpenTradeNet.class'].each { path ->
                     def a = pristine.getInputStream(pristine.getJarEntry(path)).readAllBytes()
                     def b = zip.getInputStream(zip.getEntry(path)).readAllBytes()
-                    if (!java.util.Arrays.equals(a, b)) throw new GradleException("Vendor class was modified: $path")
+                    if (!java.util.Arrays.equals(a, b)) throw new GradleException("Vendor class was modified: ${path}")
                 }
             } finally { pristine.close() }
             println("Verified resource-only VM Trade jar: ${jarFile.name}")
