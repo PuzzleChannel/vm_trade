@@ -30,7 +30,7 @@ public abstract class TradeChestWalletOrderMixin {
             writeIntField(deposit, "x", withdrawX);
             writeIntField(withdraw, "x", depositX);
 
-            setMessage(deposit, "Внести");
+            setMessage(deposit, "Пополнить");
             setMessage(withdraw, "Вывести");
         } catch (ReflectiveOperationException | RuntimeException exception) {
             // UI polish must never prevent the trading screen from opening.
