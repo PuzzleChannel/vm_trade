@@ -17,11 +17,13 @@ with zipfile.ZipFile(jar) as z:
     assert "opentrade-neoforge.mixins.json" not in names
     assert "net/onlyjugs/fabric/mixin/MarketScreenTranslationMixin.class" not in names
     assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" in names
-    assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" in names
+    assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
+    assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" in names
     mix=json.loads(z.read("vmtrade.mixins.json"))
     assert "MarketScreenTranslationMixin" not in mix.get("client",[])
     assert "UiTranslationClientMixin" in mix.get("client",[])
-    assert "UiTranslationServerMixin" in mix.get("mixins",[])
+    assert "UiTranslationServerMixin" not in mix.get("mixins",[])
+    assert "VmTradeUiTranslationServerMixin" in mix.get("mixins",[])
     init=z.read("com/puzzlechannel/vmtrade/VmTradeInitializer.class")
     market=z.read("com/puzzlechannel/vmtrade/MarketBlock.class")
     assert b"SimpleMenuProvider" not in market
