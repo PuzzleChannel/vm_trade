@@ -149,7 +149,7 @@ tasks.register('verifyJar') {
                 if (entry == null) throw new GradleException('VM Trade custom mixin is missing: ' + name)
                 def bytes = zip.getInputStream(entry).readAllBytes()
                 def constants = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
-                if (!constants.contains('Lorg/spongepowered/asm/mixin/Mixin;') || !constants.contains('RuntimeVisibleAnnotations')) throw new GradleException('VM Trade mixin lacks @Mixin annotation: ' + name)
+                if (!constants.contains('Lorg/spongepowered/asm/mixin/Mixin;') || !constants.contains('RuntimeInvisibleAnnotations')) throw new GradleException('VM Trade mixin lacks @Mixin annotation: ' + name)
             }
             customMixinNames.each { name ->
                 if (zip.getEntry('net/onlyjugs/fabric/mixin/' + name + '.class') != null) throw new GradleException('Legacy mixin class leaked into output: ' + name)
