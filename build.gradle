@@ -68,8 +68,12 @@ tasks.jar {
             exclude 'opentrade-fabric.mixins.json'
             exclude 'assets/opentrade/lang/en_us.json'
             exclude 'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class'
-            // Prefer the locally compiled, annotated mixins over duplicate vendor classes.
-            exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
+            // VM Trade-owned mixins are isolated from Open Trade's package.
+            exclude 'net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class'
             exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
             exclude 'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class'
             exclude 'net/onlyjugs/neoforge/**'
@@ -80,8 +84,13 @@ tasks.jar {
         }
     }
     from(sourceSets.main.output) {
-        // Prevent a stale incremental class from reintroducing the colliding old name.
-        exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
+        // Never package stale custom mixins under the vendor namespace.
+        exclude 'net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class'
+        exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
         exclude 'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class'
     }
 }
@@ -107,7 +116,7 @@ tasks.register('verifyJar') {
             def required = [
                 'fabric.mod.json',
                 'vmtrade.mixins.json',
-                'vmtrade-server.mixins.json',
+                'vmtrade-custom.mixins.json',
                 'opentrade.accesswidener',
                 'assets/opentrade/lang/ru_ru.json',
                 'assets/vmtrade/lang/ru_ru.json',
@@ -123,25 +132,28 @@ tasks.register('verifyJar') {
             if (meta.id != 'vmtrade') throw new GradleException('Wrong mod id')
             if (meta.version != project.version.toString()) throw new GradleException("Wrong VM Trade version: ${meta.version}")
             if (meta.accessWidener != 'opentrade.accesswidener') throw new GradleException('Access widener not declared')
+            if (!meta.mixins.contains('vmtrade-custom.mixins.json')) throw new GradleException('VM Trade custom mixin config is not registered in mod metadata')
             def mixins = new String(zip.getInputStream(zip.getEntry('vmtrade.mixins.json')).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)
             if (mixins.contains('AbstractContainerScreenInitMixin')) throw new GradleException('Old Convert button mixin still enabled')
             if (mixins.contains('MarketScreenTranslationMixin')) throw new GradleException('Unsafe translation mixin is present')
             def mixinConfig = new groovy.json.JsonSlurper().parse(new java.io.ByteArrayInputStream(mixins.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
-            if (mixinConfig.mixins.contains('UiTranslationServerMixin')) throw new GradleException('Old colliding server translation mixin is still enabled')
-            if (mixinConfig.mixins.contains('VmTradeUiTranslationServerMixin')) throw new GradleException('Server translation mixin must use the isolated VM Trade config')
-            if (zip.getEntry('net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class') != null) throw new GradleException('Old colliding server translation mixin class leaked into output')
-            if (zip.getEntry('net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class') != null) throw new GradleException('Server translation mixin still uses the upstream namespace')
-            def serverConfigEntry = zip.getEntry('vmtrade-server.mixins.json')
-            if (serverConfigEntry == null) throw new GradleException('Isolated VM Trade server mixin config is missing')
-            def serverMixinConfig = new groovy.json.JsonSlurper().parse(zip.getInputStream(serverConfigEntry))
-            if (serverMixinConfig.package != 'com.puzzlechannel.vmtrade.mixin') throw new GradleException('Server translation mixin package is not isolated')
-            if (serverMixinConfig.mixins != ['VmTradeUiTranslationServerMixin']) throw new GradleException('Unexpected isolated server mixin config')
-            def serverMixinEntry = zip.getEntry('com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class')
-            if (serverMixinEntry == null) throw new GradleException('Isolated VM Trade server translation mixin class is missing')
-            def serverMixinBytes = zip.getInputStream(serverMixinEntry).readAllBytes()
-            def serverMixinConstants = new String(serverMixinBytes, java.nio.charset.StandardCharsets.ISO_8859_1)
-            if (!serverMixinConstants.contains('Lorg/spongepowered/asm/mixin/Mixin;')) throw new GradleException('Packaged server translation mixin lacks the @Mixin annotation descriptor')
-            if (!serverMixinConstants.contains('RuntimeVisibleAnnotations')) throw new GradleException('Packaged server translation mixin has no runtime-visible annotations')
+            def customConfigEntry = zip.getEntry('vmtrade-custom.mixins.json')
+            if (customConfigEntry == null) throw new GradleException('VM Trade custom mixin config is missing')
+            def customMixinConfig = new groovy.json.JsonSlurper().parse(zip.getInputStream(customConfigEntry))
+            if (customMixinConfig.package != 'com.puzzlechannel.vmtrade.mixin') throw new GradleException('VM Trade custom mixin package is not isolated')
+            if (customMixinConfig.mixins != ['CancelListingReturnMixin', 'ServerTransactionGuardMixin', 'VmTradeUiTranslationServerMixin']) throw new GradleException('Unexpected VM Trade server mixin list')
+            if (customMixinConfig.client != ['UiTranslationClientMixin', 'MarketScreenLayoutMixin', 'MarketScreenBackMixin', 'MarketReturnClientMixin']) throw new GradleException('Unexpected VM Trade client mixin list')
+            def customMixinNames = customMixinConfig.mixins + customMixinConfig.client
+            customMixinNames.each { name ->
+                def entry = zip.getEntry('com/puzzlechannel/vmtrade/mixin/' + name + '.class')
+                if (entry == null) throw new GradleException('VM Trade custom mixin is missing: ' + name)
+                def bytes = zip.getInputStream(entry).readAllBytes()
+                def constants = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+                if (!constants.contains('Lorg/spongepowered/asm/mixin/Mixin;') || !constants.contains('RuntimeVisibleAnnotations')) throw new GradleException('VM Trade mixin lacks @Mixin annotation: ' + name)
+            }
+            customMixinNames.each { name ->
+                if (zip.getEntry('net/onlyjugs/fabric/mixin/' + name + '.class') != null) throw new GradleException('Legacy mixin class leaked into output: ' + name)
+            }
             if (zip.getEntry('opentrade-fabric.mixins.json') != null) throw new GradleException('Original Open Trade mixin config leaked into output')
             if (zip.getEntry('net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class') != null) throw new GradleException('Convert button mixin class leaked into output')
             if (zip.getEntry('net/onlyjugs/neoforge/OpenTradeNeoForge.class') != null) throw new GradleException('NeoForge content leaked into output')

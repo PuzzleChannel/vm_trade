@@ -1,117 +1,51 @@
-"""Release-integrity and server-transaction guard checks for VM Trade."""
+"""Release-integrity and transaction-hardening checks for VM Trade."""
 from pathlib import Path
 from zipfile import ZipFile
-import json
-import sys
-
-ROOT = Path(__file__).resolve().parents[1]
-VERSION = next(
-    (line.split("=", 1)[1].strip()
-     for line in (ROOT / "gradle.properties").read_text(encoding="utf-8").splitlines()
-     if line.startswith("version=")),
-    None,
-)
-if not VERSION:
-    raise SystemExit("version= missing from gradle.properties")
-
-jar_path = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / f"build/libs/vm-trade-{VERSION}.jar"
-vendor_path = ROOT / "vendor/open-trade-1.4.2.jar"
-if not jar_path.is_file():
-    raise SystemExit(f"Release JAR not found: {jar_path}")
-if not vendor_path.is_file():
-    raise SystemExit(f"Pristine vendor JAR not found: {vendor_path}")
-
+import json,sys
+ROOT=Path(__file__).resolve().parents[1]
+VERSION=next((line.split("=",1)[1].strip() for line in (ROOT/"gradle.properties").read_text(encoding="utf-8").splitlines() if line.startswith("version=")),None)
+if not VERSION: raise SystemExit("version= missing from gradle.properties")
+jar_path=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/f"build/libs/vm-trade-{VERSION}.jar"
+vendor_path=ROOT/"vendor/open-trade-1.4.2.jar"
+if not jar_path.is_file() or not vendor_path.is_file(): raise SystemExit("Release JAR or pristine vendor JAR is missing")
 with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
-    entries = release.infolist()
-    names_list = [entry.filename for entry in entries]
-    names = set(names_list)
-    duplicates = sorted({name for name in names_list if names_list.count(name) > 1})
-    if duplicates:
-        raise AssertionError(f"Duplicate ZIP entries in release: {duplicates}")
-
-    meta = json.loads(release.read("fabric.mod.json"))
-    if meta.get("id") != "vmtrade" or meta.get("version") != VERSION:
-        raise AssertionError(f"Unexpected mod metadata: id={meta.get('id')!r}, version={meta.get('version')!r}")
-    if meta.get("depends", {}).get("minecraft") != ">=26.2 <26.3":
-        raise AssertionError("Minecraft dependency range is not pinned to 26.2.x")
-    if int(meta.get("depends", {}).get("java", "0").lstrip(">=")) < 25:
-        raise AssertionError("Java 25+ is not declared")
-
-    mixins = json.loads(release.read("vmtrade.mixins.json"))
-    server_mixins = json.loads(release.read("vmtrade-server.mixins.json"))
-    configured = (
-        [(mixins, mixin) for mixin in list(mixins.get("mixins", [])) + list(mixins.get("client", []))]
-        + [(server_mixins, mixin) for mixin in list(server_mixins.get("mixins", [])) + list(server_mixins.get("client", []))]
-    )
-    if "UiTranslationServerMixin" in mixins.get("mixins", []):
-        raise AssertionError("Colliding old server translation mixin is still configured")
-    if "VmTradeUiTranslationServerMixin" in mixins.get("mixins", []):
-        raise AssertionError("Server translation mixin remains in the shared upstream namespace")
-    if server_mixins.get("package") != "com.puzzlechannel.vmtrade.mixin" or "VmTradeUiTranslationServerMixin" not in server_mixins.get("mixins", []):
-        raise AssertionError("Isolated VM Trade server translation mixin is not configured")
-    for config, mixin in configured:
-        path = f"{config['package'].replace('.', '/')}/{mixin}.class"
-        if path not in names:
-            raise AssertionError(f"Mixin is configured but missing from JAR: {path}")
-
-    forbidden_suffixes = (
-        "org/spongepowered/asm/mixin/Mixin.class",
-        "net/minecraft/network/chat/Component.class",
-        "net/minecraft/world/inventory/MenuProvider.class",
-        "net/fabricmc/api/ModInitializer.class",
-    )
-    leaked = [name for name in names if any(name.endswith(suffix) for suffix in forbidden_suffixes)]
-    if leaked:
-        raise AssertionError(f"Development stub/API classes leaked into release: {leaked}")
-
-    critical_vendor_classes = (
-        "net/onlyjugs/client/screen/MarketScreen.class",
-        "net/onlyjugs/client/screen/TradeChestScreen.class",
-        "net/onlyjugs/net/OpenTradeNet.class",
-        "net/onlyjugs/OpenTradeConfig.class",
-    )
-    vendor_names = set(vendor.namelist())
-    for path in critical_vendor_classes:
-        if path not in names or path not in vendor_names:
-            raise AssertionError(f"Critical upstream class missing: {path}")
-        if release.read(path) != vendor.read(path):
-            raise AssertionError(f"Upstream class was modified unexpectedly: {path}")
-
-    required_own_classes = (
-        "com/puzzlechannel/vmtrade/VmTradeInitializer.class",
-        "com/puzzlechannel/vmtrade/UiTextTranslations.class",
-        "com/puzzlechannel/vmtrade/TransactionGuard.class",
-        "net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class",
-        "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class",
-        "com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class",
-        "net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class",
-        "net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class",
-        "net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class",
-        "net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class",
-    )
-    for path in required_own_classes:
-        if path not in names:
-            raise AssertionError(f"Required VM Trade class missing: {path}")
-
-cancel_source = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/CancelListingReturnMixin.java").read_text(encoding="utf-8")
-clear_at = cancel_source.find("menu.stageContainer().setItem(0, ItemStack.EMPTY)")
-add_at = cancel_source.find("player.getInventory().add(returned)")
-drop_at = cancel_source.find("player.drop(returned, false)")
-if min(clear_at, add_at, drop_at) < 0 or not (clear_at < add_at < drop_at):
-    raise AssertionError("Cancelled listing must be removed from staging before inventory insertion/drop")
-
-transaction_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.java").read_text(encoding="utf-8")
-for handler in ("handleBuy", "handleBuyUniqueStack", "handleWallet", "handlePlaceBuyOrder", "handleCancelBuyOrder", "handleVillagerExecute", "handleListStage", "handleCancelStageListing", "handleSetListing"):
-    if f'method = "{handler}"' not in transaction_mixin:
-        raise AssertionError(f"Missing server transaction guard for {handler}")
-if "TransactionGuard.allow" not in transaction_mixin or "ci.cancel()" not in transaction_mixin:
-    raise AssertionError("Server transaction guard is not rejecting duplicates/invalid requests")
-back_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/MarketScreenBackMixin.java").read_text(encoding="utf-8")
-if 'new OpenMarketPayload("")' not in back_mixin or "lambda$buildOurWidgets$0" not in back_mixin:
-    raise AssertionError("Market Back button is not routed to the market home payload")
-return_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/MarketReturnClientMixin.java").read_text(encoding="utf-8")
-if "lambda$registerClient$1" not in return_mixin or "ItemDetailCache.clear()" not in return_mixin:
-    raise AssertionError("Market return must clear stale client item-detail cache")
-
+    names_list=[x.filename for x in release.infolist()]; names=set(names_list)
+    duplicates=sorted({n for n in names_list if names_list.count(n)>1})
+    if duplicates: raise AssertionError(f"Duplicate ZIP entries: {duplicates}")
+    meta=json.loads(release.read("fabric.mod.json"))
+    if meta.get("id")!="vmtrade" or meta.get("version")!=VERSION: raise AssertionError("Unexpected mod metadata/version")
+    if meta.get("depends",{}).get("minecraft")!=">=26.2 <26.3" or int(meta.get("depends",{}).get("java","0").lstrip(">="))<25: raise AssertionError("Minecraft or Java dependency range mismatch")
+    main=json.loads(release.read("vmtrade.mixins.json")); custom=json.loads(release.read("vmtrade-custom.mixins.json"))
+    if "vmtrade-custom.mixins.json" not in meta.get("mixins",[]): raise AssertionError("Custom Mixin config is not registered in Fabric metadata")
+    if main.get("package")!="net.onlyjugs.fabric.mixin" or main.get("mixins")!=["MinecraftServerTickMixin","ServerPlayerGameModeMixin","MerchantOpenScreenMixin"] or main.get("client",[])!=[]: raise AssertionError("Upstream Mixin config unexpectedly contains custom classes")
+    expected_server=["CancelListingReturnMixin","ServerTransactionGuardMixin","VmTradeUiTranslationServerMixin"]
+    expected_client=["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketScreenBackMixin","MarketReturnClientMixin"]
+    if custom.get("package")!="com.puzzlechannel.vmtrade.mixin" or custom.get("mixins")!=expected_server or custom.get("client")!=expected_client: raise AssertionError("VM Trade mixins are not isolated/configured correctly")
+    for n in expected_server+expected_client:
+        p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"
+        if p not in names: raise AssertionError(f"Configured Mixin class missing: {p}")
+        b=release.read(p)
+        if b"Lorg/spongepowered/asm/mixin/Mixin;" not in b or b"RuntimeVisibleAnnotations" not in b: raise AssertionError(f"Configured class has no @Mixin annotation: {p}")
+        if f"net/onlyjugs/fabric/mixin/{n}.class" in names: raise AssertionError(f"Legacy mixin namespace leaked: {n}")
+    for p in ("org/spongepowered/asm/mixin/Mixin.class","net/minecraft/network/chat/Component.class","net/minecraft/world/inventory/MenuProvider.class","net/fabricmc/api/ModInitializer.class"):
+        if p in names: raise AssertionError(f"Development stub leaked: {p}")
+    for p in ("net/onlyjugs/client/screen/MarketScreen.class","net/onlyjugs/client/screen/TradeChestScreen.class","net/onlyjugs/net/OpenTradeNet.class","net/onlyjugs/OpenTradeConfig.class"):
+        if p not in names or p not in vendor.namelist() or release.read(p)!=vendor.read(p): raise AssertionError(f"Critical upstream class missing/modified: {p}")
+required_own=("com/puzzlechannel/vmtrade/VmTradeInitializer.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.class","com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class","com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenBackMixin.class","com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.class","com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.class")
+with ZipFile(jar_path) as release:
+    names=set(release.namelist())
+    for p in required_own:
+        if p not in names: raise AssertionError(f"Required VM Trade class missing: {p}")
+cancel=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.java").read_text(encoding="utf-8")
+a=cancel.find("menu.stageContainer().setItem(0, ItemStack.EMPTY)"); b=cancel.find("player.getInventory().add(returned)"); c=cancel.find("player.drop(returned, false)")
+if min(a,b,c)<0 or not a<b<c: raise AssertionError("Cancelled listing must be removed from staging before inventory insertion/drop")
+transaction=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.java").read_text(encoding="utf-8")
+for h in ("handleBuy","handleBuyUniqueStack","handleWallet","handlePlaceBuyOrder","handleCancelBuyOrder","handleVillagerExecute","handleListStage","handleCancelStageListing","handleSetListing"):
+    if f'method = "{h}"' not in transaction: raise AssertionError(f"Missing server transaction guard for {h}")
+if "TransactionGuard.allow" not in transaction or "ci.cancel()" not in transaction: raise AssertionError("Server guard does not reject replay/invalid requests")
+back=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/MarketScreenBackMixin.java").read_text(encoding="utf-8")
+if 'new OpenMarketPayload("")' not in back or "lambda$buildOurWidgets$0" not in back: raise AssertionError("Back button does not return to market root")
+ret=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.java").read_text(encoding="utf-8")
+if "lambda$registerClient$1" not in ret or "ItemDetailCache.clear()" not in ret: raise AssertionError("Market return does not clear stale detail cache")
 print(f"VM Trade release safety audit: OK ({jar_path.name})")
 print("Static checks do not replace runtime multiplayer exploit testing.")

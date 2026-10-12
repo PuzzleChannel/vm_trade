@@ -5,16 +5,9 @@
   "mixins": [
     "MinecraftServerTickMixin",
     "ServerPlayerGameModeMixin",
-    "MerchantOpenScreenMixin",
-    "CancelListingReturnMixin",
-    "ServerTransactionGuardMixin"
+    "MerchantOpenScreenMixin"
   ],
-  "client": [
-    "UiTranslationClientMixin",
-    "MarketScreenLayoutMixin",
-    "MarketScreenBackMixin",
-    "MarketReturnClientMixin"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
