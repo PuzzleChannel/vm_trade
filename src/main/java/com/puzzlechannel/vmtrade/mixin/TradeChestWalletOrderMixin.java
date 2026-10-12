@@ -52,7 +52,7 @@ public abstract class TradeChestWalletOrderMixin {
                 maxLength.invoke(amount, 7);
                 Predicate<String> digitsOnly = value -> value != null
                         && value.matches("[0-9]{0,7}")
-                        && (value.isEmpty() || Integer.parseInt(value) <= 1_000_000);
+                        && (value.isEmpty() || (Integer.parseInt(value) > 0 && Integer.parseInt(value) <= 1_000_000));
                 boolean filterInstalled = false;
                 for (Class<?> type = amount.getClass(); type != null && !filterInstalled; type = type.getSuperclass()) {
                     for (Method method : type.getDeclaredMethods()) {
