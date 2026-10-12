@@ -13,7 +13,8 @@
   "client": [
     "UiTranslationClientMixin",
     "MarketScreenLayoutMixin",
-    "MarketScreenBackMixin"
+    "MarketScreenBackMixin",
+    "MarketReturnClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

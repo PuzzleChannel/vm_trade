@@ -76,6 +76,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class",
         "net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class",
         "net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class",
+        "net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class",
         "net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class",
     )
     for path in required_own_classes:
@@ -98,6 +99,9 @@ if "TransactionGuard.allow" not in transaction_mixin or "ci.cancel()" not in tra
 back_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/MarketScreenBackMixin.java").read_text(encoding="utf-8")
 if 'new OpenMarketPayload("")' not in back_mixin or "lambda$buildOurWidgets$0" not in back_mixin:
     raise AssertionError("Market Back button is not routed to the market home payload")
+return_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/MarketReturnClientMixin.java").read_text(encoding="utf-8")
+if "lambda$registerClient$1" not in return_mixin or "ItemDetailCache.clear()" not in return_mixin:
+    raise AssertionError("Market return must clear stale client item-detail cache")
 
 print(f"VM Trade release safety audit: OK ({jar_path.name})")
 print("Static checks do not replace runtime multiplayer exploit testing.")
