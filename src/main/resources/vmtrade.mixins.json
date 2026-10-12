@@ -10,7 +10,8 @@
     "CancelListingReturnMixin"
   ],
   "client": [
-    "UiTranslationClientMixin"
+    "UiTranslationClientMixin",
+    "MarketScreenLayoutMixin"
   ],
   "injectors": {
     "defaultRequire": 1
