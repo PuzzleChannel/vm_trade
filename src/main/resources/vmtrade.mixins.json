@@ -7,11 +7,13 @@
     "ServerPlayerGameModeMixin",
     "MerchantOpenScreenMixin",
     "UiTranslationServerMixin",
-    "CancelListingReturnMixin"
+    "CancelListingReturnMixin",
+    "ServerTransactionGuardMixin"
   ],
   "client": [
     "UiTranslationClientMixin",
-    "MarketScreenLayoutMixin"
+    "MarketScreenLayoutMixin",
+    "MarketScreenBackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

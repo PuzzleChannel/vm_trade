@@ -1,8 +1,4 @@
-"""Release-integrity checks for VM Trade.
-
-This is a static audit, not a substitute for multiplayer exploit testing.
-Run after building: python tooling/verify_safety.py [path/to/mod.jar]
-"""
+"""Release-integrity and server-transaction guard checks for VM Trade."""
 from pathlib import Path
 from zipfile import ZipFile
 import json
@@ -74,10 +70,13 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
     required_own_classes = (
         "com/puzzlechannel/vmtrade/VmTradeInitializer.class",
         "com/puzzlechannel/vmtrade/UiTextTranslations.class",
+        "com/puzzlechannel/vmtrade/TransactionGuard.class",
         "net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class",
         "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class",
         "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class",
         "net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class",
+        "net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class",
+        "net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class",
     )
     for path in required_own_classes:
         if path not in names:
@@ -90,5 +89,15 @@ drop_at = cancel_source.find("player.drop(returned, false)")
 if min(clear_at, add_at, drop_at) < 0 or not (clear_at < add_at < drop_at):
     raise AssertionError("Cancelled listing must be removed from staging before inventory insertion/drop")
 
+transaction_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.java").read_text(encoding="utf-8")
+for handler in ("handleBuy", "handleBuyUniqueStack", "handleWallet", "handlePlaceBuyOrder", "handleCancelBuyOrder", "handleVillagerExecute", "handleListStage", "handleCancelStageListing", "handleSetListing"):
+    if f'method = "{handler}"' not in transaction_mixin:
+        raise AssertionError(f"Missing server transaction guard for {handler}")
+if "TransactionGuard.allow" not in transaction_mixin or "ci.cancel()" not in transaction_mixin:
+    raise AssertionError("Server transaction guard is not rejecting duplicates/invalid requests")
+back_mixin = (ROOT / "src/main/java/net/onlyjugs/fabric/mixin/MarketScreenBackMixin.java").read_text(encoding="utf-8")
+if 'new OpenMarketPayload("")' not in back_mixin or "lambda$buildOurWidgets$0" not in back_mixin:
+    raise AssertionError("Market Back button is not routed to the market home payload")
+
 print(f"VM Trade release safety audit: OK ({jar_path.name})")
-print("Note: this checks archive integrity and known invariants; runtime exploit tests are still required.")
+print("Static checks do not replace runtime multiplayer exploit testing.")

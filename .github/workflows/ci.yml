@@ -34,6 +34,12 @@ jobs:
       - name: Build the mod
         run: bash gradlew --no-daemon clean build verifyJar
 
+      - name: Test server transaction guard invariants
+        run: |
+          mkdir -p build/guard-test-classes
+          javac --release 21 -cp "build/classes/java/main:build/api-stubs.jar" -d build/guard-test-classes tooling/tests/TransactionGuardTest.java
+          java -cp "build/guard-test-classes:build/classes/java/main:build/api-stubs.jar" com.puzzlechannel.vmtrade.TransactionGuardTest
+
       - name: Verify release structure
         run: |
           python tooling/verify_static.py
@@ -43,17 +49,6 @@ jobs:
       - name: Upload release JAR
         uses: actions/upload-artifact@v4
         with:
-          name: VMTrade-${{ github.sha }}
+          name: VMTrade-\${{ github.sha }}
           path: build/libs/vm-trade-*.jar
           if-no-files-found: error
-      - name: Inspect upstream market screen symbols for targeted regression fixes
-        if: github.ref != ''
-        run: |
-          javap -classpath vendor/open-trade-1.4.2.jar -p net.onlyjugs.client.screen.MarketScreen
-          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | grep -n -E -A45 -B12 'Back|Sell Orders|Recent Trades' || true
-          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk 'index($0, "lambda$buildOurWidgets$0(") {p=1} p {print} index($0, "lambda$buildOurWidgets$1(") {exit}' || true
-          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | awk 'index($0, "private void renderRightPanel(") {p=1} p {print} index($0, "private java.lang.String fit(") {exit}' || true
-          echo '--- Relevant upstream classes ---'
-          jar tf vendor/open-trade-1.4.2.jar | grep -E 'net/onlyjugs/client/screen/.*class|BackTo.*Payload.class|net/onlyjugs/net/OpenTradeNet.class' || true
-          echo '--- Server handler for BackToTradeChestPayload ---'
-          javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.net.OpenTradeNet | grep -n -E -A45 -B12 'BackToTradeChestPayload|handleBackToTradeChest' || true
