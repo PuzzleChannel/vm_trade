@@ -1,3 +1,4 @@
+from classfile_checks import has_class_level_mixin_annotation
 import json, sys, zipfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,7 +22,7 @@ with zipfile.ZipFile(jar) as z:
     assert custom.get("client")==["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketScreenBackMixin","MarketReturnClientMixin"]
     for n in own:
         p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"; assert p in names,p
-        data=z.read(p); assert b"RuntimeVisibleAnnotations" in data and b"Lorg/spongepowered/asm/mixin/Mixin;" in data,p
+        data=z.read(p); assert has_class_level_mixin_annotation(data), f"@Mixin must be class-level RuntimeInvisibleAnnotations: {p}"
         assert f"net/onlyjugs/fabric/mixin/{n}.class" not in names
     assert "net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class" not in names
     assert "opentrade-fabric.mixins.json" not in names and "opentrade-neoforge.mixins.json" not in names
