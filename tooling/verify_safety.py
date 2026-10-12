@@ -62,6 +62,14 @@ for method, payload_type in expected_payloads.items():
 for h in ("handleBuy","handleBuyUniqueStack","handleWallet","handlePlaceBuyOrder","handleCancelBuyOrder","handleVillagerExecute","handleListStage","handleCancelStageListing","handleSetListing"):
     if f'method = "{h}"' not in transaction: raise AssertionError(f"Missing server transaction guard for {h}")
 if "TransactionGuard.allow" not in transaction or "ci.cancel()" not in transaction: raise AssertionError("Server guard does not reject replay/invalid requests")
+if 'intValue(payload, "quantity") < 1' not in transaction:
+    raise AssertionError("Buy handler must reject zero-quantity packets")
+
+wallet_ui=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.java").read_text(encoding="utf-8")
+for needle in ('value.matches("[0-9]{0,7}")', 'Integer.parseInt(value) <= 1_000_000', 'writeIntField(amount, "width", 44)'):
+    if needle not in wallet_ui:
+        raise AssertionError(f"Wallet UI is missing release input/layout guard: {needle}")
+
 custom_ui=(ROOT/"src/main/resources/vmtrade-custom.mixins.json").read_text(encoding="utf-8")
 if "MarketScreenBackMixin" in custom_ui: raise AssertionError("Broken Back override must stay disabled to preserve upstream return-to-Trade-Chest navigation")
 for p in ["com/puzzlechannel/vmtrade/TradeChestClientUi.class","com/puzzlechannel/vmtrade/SaleHistoryStore.class","com/puzzlechannel/vmtrade/TradeHistoryNetwork.class","com/puzzlechannel/vmtrade/TradeSyncService.class","net/onlyjugs/fabric/mixin/CurrencyDisplayMixin.class","net/onlyjugs/fabric/mixin/ItemKeysLabelMixin.class"]:
