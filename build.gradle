@@ -1,0 +1,144 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.puzzlechannel'
+version = project.version
+
+def baseJar = file('vendor/open-trade-1.4.2.jar')
+
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/main/resources']
+    }
+}
+
+// The rework layer is compiled against local API stubs only. The real Minecraft/Fabric
+// classes are supplied by the game/loader at runtime; the stubs are never packaged.
+dependencies {
+    compileOnly files(layout.buildDirectory.file('api-stubs.jar'))
+}
+
+tasks.register('prepareStubs') {
+    def outDir = layout.buildDirectory.dir('api-stubs-classes')
+    outputs.dir(outDir)
+    doLast {
+        def dir = outDir.get().asFile
+        delete(dir)
+        dir.mkdirs()
+        def sources = fileTree('tooling/stubs/src').matching { include '**/*.java' }.files
+        if (sources.isEmpty()) throw new GradleException('No API stub sources found')
+        def compiler = javax.tools.ToolProvider.systemJavaCompiler
+        if (compiler == null) {
+            throw new GradleException('A JDK is required to prepare API stubs (system Java compiler not available)')
+        }
+        def result = compiler.run(null, null, null, '-d', dir.absolutePath,
+                *sources.collect { it.absolutePath })
+        if (result != 0) {
+            throw new GradleException("API stub compilation failed with javac exit code ${result}")
+        }
+        ant.jar(destfile: layout.buildDirectory.file('api-stubs.jar').get().asFile, basedir: dir)
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// IMPORTANT: the original Open Trade classes are copied unchanged.
+// Localisation is resource-only: no .class bytecode is rewritten or patched.
+tasks.jar {
+    archiveBaseName = 'vm-trade'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn 'verifyBaseJar', 'prepareStubs'
+
+    from {
+        zipTree(baseJar).matching {
+            exclude 'fabric.mod.json'
+            exclude 'opentrade-fabric.mixins.json'
+            exclude 'assets/opentrade/lang/en_us.json'
+            exclude 'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class'
+            exclude 'net/onlyjugs/neoforge/**'
+            exclude 'opentrade-neoforge.mixins.json'
+            exclude 'META-INF/forgix/**'
+            exclude 'META-INF/accesstransformer.cfg'
+            exclude 'META-INF/neoforge.mods.toml'
+        }
+    }
+    from sourceSets.main.output
+}
+
+tasks.register('verifyBaseJar') {
+    doLast {
+        if (!baseJar.exists()) throw new GradleException('Missing vendor/open-trade-1.4.2.jar')
+        def names = zipTree(baseJar).matching { include 'fabric.mod.json'; include 'net/onlyjugs/**' }.files
+        if (!names) throw new GradleException('Base Open Trade jar is invalid or empty')
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn 'verifyBaseJar', 'prepareStubs'
+}
+
+tasks.register('verifyJar') {
+    dependsOn tasks.jar
+    doLast {
+        def jarFile = tasks.jar.archiveFile.get().asFile
+        def zip = new java.util.zip.ZipFile(jarFile)
+        try {
+            def required = [
+                'fabric.mod.json',
+                'vmtrade.mixins.json',
+                'opentrade.accesswidener',
+                'assets/opentrade/lang/ru_ru.json',
+                'assets/vmtrade/lang/ru_ru.json',
+                'assets/vmtrade/textures/item/vmcoin.png',
+                'assets/vmtrade/models/item/vmcoin.json',
+                'assets/vmtrade/items/vmcoin.json',
+                'assets/vmtrade/models/block/market.json',
+                'assets/vmtrade/blockstates/market.json',
+                'data/vmtrade/recipes/market.json'
+            ]
+            required.each { if (zip.getEntry(it) == null) throw new GradleException("Missing output entry: $it") }
+            def meta = new groovy.json.JsonSlurper().parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
+            if (meta.id != 'vmtrade') throw new GradleException('Wrong mod id')
+            if (meta.version != project.version.toString()) throw new GradleException("Wrong VM Trade version: ${meta.version}")
+            if (meta.accessWidener != 'opentrade.accesswidener') throw new GradleException('Access widener not declared')
+            def mixins = new String(zip.getInputStream(zip.getEntry('vmtrade.mixins.json')).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)
+            if (mixins.contains('AbstractContainerScreenInitMixin')) throw new GradleException('Old Convert button mixin still enabled')
+            if (mixins.contains('MarketScreenTranslationMixin')) throw new GradleException('Unsafe translation mixin is present')
+            if (zip.getEntry('opentrade-fabric.mixins.json') != null) throw new GradleException('Original Open Trade mixin config leaked into output')
+            if (zip.getEntry('net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class') != null) throw new GradleException('Convert button mixin class leaked into output')
+            if (zip.getEntry('net/onlyjugs/neoforge/OpenTradeNeoForge.class') != null) throw new GradleException('NeoForge content leaked into output')
+            if (zip.getEntry('assets/opentrade/lang/en_us.json') != null) throw new GradleException('Original English language file leaked into output')
+            if (zip.getEntry('net/minecraft/world/inventory/MenuProvider.class') != null) throw new GradleException('Stale wrong-package stub leaked into output')
+            if (zip.getEntry('net/fabricmc/fabric/api/creativetab/v1/CreativeModeTabEvents.class') != null) throw new GradleException('Fabric API stub leaked into output')
+
+            // Prove the vendor bytecode was not rewritten: its classes must match the pristine source JAR.
+            def pristine = new java.util.jar.JarFile(baseJar)
+            try {
+                ['net/onlyjugs/client/screen/MarketScreen.class',
+                 'net/onlyjugs/client/screen/TradeChestScreen.class',
+                 'net/onlyjugs/OpenTradeConfig.class',
+                 'net/onlyjugs/net/OpenTradeNet.class'].each { path ->
+                    def a = pristine.getInputStream(pristine.getJarEntry(path)).readAllBytes()
+                    def b = zip.getInputStream(zip.getEntry(path)).readAllBytes()
+                    if (!java.util.Arrays.equals(a, b)) throw new GradleException("Vendor class was modified: $path")
+                }
+            } finally { pristine.close() }
+            println("Verified resource-only VM Trade jar: ${jarFile.name}")
+        } finally { zip.close() }
+    }
+}
+
+tasks.named('build') { finalizedBy 'verifyJar' }

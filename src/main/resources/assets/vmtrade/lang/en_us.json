@@ -1,0 +1,14 @@
+{
+  "item.vmtrade.vmcoin": "VMCoin (VC)",
+  "block.vmtrade.market": "Market",
+  "container.opentrade.trade_chest": "Trade Chest",
+  "container.opentrade.market": "Market",
+  "container.opentrade.villager_trade": "Villager",
+  "opentrade.button.list": "List for Sale",
+  "opentrade.button.cancel": "Cancel Listing",
+  "opentrade.button.market": "Market…",
+  "opentrade.button.deposit": "Deposit 1 VC",
+  "opentrade.button.withdraw": "Withdraw 1 VC",
+  "opentrade.label.wallet": "Wallet",
+  "itemGroup.vmtrade.creative_tab": "VM Trade"
+}

@@ -1,0 +1,1 @@
+package net.minecraft.world.level; import net.minecraft.core.BlockPos; import net.minecraft.world.level.block.state.BlockState; public class Level { public boolean isClientSide(){return false;} public BlockState getBlockState(BlockPos p){return null;} }

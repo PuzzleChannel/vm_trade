@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "vmtrade:block/market_front",
+    "down": "vmtrade:block/market_bottom",
+    "up": "vmtrade:block/market_top",
+    "north": "vmtrade:block/market_front",
+    "south": "vmtrade:block/market_front",
+    "west": "vmtrade:block/market_side",
+    "east": "vmtrade:block/market_side"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "down": {"texture": "#down"},
+        "up": {"texture": "#up"},
+        "north": {"texture": "#north"},
+        "south": {"texture": "#south"},
+        "west": {"texture": "#west"},
+        "east": {"texture": "#east"}
+      }
+    }
+  ]
+}

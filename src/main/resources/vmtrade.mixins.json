@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "net.onlyjugs.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MinecraftServerTickMixin",
+    "ServerPlayerGameModeMixin",
+    "MerchantOpenScreenMixin",
+    "UiTranslationServerMixin",
+    "CancelListingReturnMixin"
+  ],
+  "client": [
+    "UiTranslationClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

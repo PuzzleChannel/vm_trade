@@ -1,0 +1,13 @@
+{
+  "block.opentrade.trade_chest": "Торговый сундук",
+  "container.opentrade.trade_chest": "Торговый сундук",
+  "container.opentrade.market": "Маркет",
+  "container.opentrade.villager_trade": "Торговец",
+  "opentrade.button.convert": "",
+  "opentrade.button.list": "Выставить на продажу",
+  "opentrade.button.cancel": "Отменить объявление",
+  "opentrade.button.market": "Маркет…",
+  "opentrade.button.deposit": "+1 ВК",
+  "opentrade.button.withdraw": "−1 ВК",
+  "opentrade.label.wallet": "Кошелёк"
+}
