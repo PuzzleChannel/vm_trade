@@ -39,6 +39,10 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
 
     mixins = json.loads(release.read("vmtrade.mixins.json"))
     configured = list(mixins.get("mixins", [])) + list(mixins.get("client", []))
+    if "UiTranslationServerMixin" in mixins.get("mixins", []):
+        raise AssertionError("Colliding old server translation mixin is still configured")
+    if "VmTradeUiTranslationServerMixin" not in mixins.get("mixins", []):
+        raise AssertionError("Unique VM Trade server translation mixin is not configured")
     for mixin in configured:
         path = f"{mixins['package'].replace('.', '/')}/{mixin}.class"
         if path not in names:
@@ -73,7 +77,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         "com/puzzlechannel/vmtrade/TransactionGuard.class",
         "net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class",
         "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class",
-        "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class",
+        "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class",
         "net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class",
         "net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class",
         "net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class",
