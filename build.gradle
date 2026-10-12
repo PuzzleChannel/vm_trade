@@ -17,7 +17,7 @@ sourceSets {
 // The rework layer is compiled against local API stubs only. The real Minecraft/Fabric
 // classes are supplied by the game/loader at runtime; the stubs are never packaged.
 dependencies {
-    compileOnly files(layout.buildDirectory.file('api-stubs.jar'))
+    compileOnly files(layout.buildDirectory.file('api-stubs.jar'), baseJar)
 }
 
 tasks.register('prepareStubs') {
