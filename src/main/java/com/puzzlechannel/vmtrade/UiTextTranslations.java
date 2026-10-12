@@ -76,6 +76,7 @@ public final class UiTextTranslations {
                 {"Out of stock", "Нет в наличии"},
         };
         for (String[] pair : exact) s = exact(s, pair[0], pair[1]);
+        s = translateSelectedTimeframe(s);
 
         // 2) Exact/full-sentence translations BEFORE generic connector replacements.
         String[][] full = {
@@ -172,6 +173,23 @@ public final class UiTextTranslations {
         s = addBalanceLabel(s);
 
         return s;
+    }
+
+    private static String translateSelectedTimeframe(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        Matcher matcher = Pattern.compile("(?i)^(all|d|w|m|y)(\\s*[✓✔●*]?)$").matcher(trimmed);
+        if (!matcher.matches()) return value;
+        String key = matcher.group(1).toUpperCase(java.util.Locale.ROOT);
+        String translated = switch (key) {
+            case "ALL" -> "ВСЕ";
+            case "D" -> "Д";
+            case "W" -> "Н";
+            case "M" -> "М";
+            case "Y" -> "Г";
+            default -> matcher.group(1);
+        };
+        return translated + matcher.group(2);
     }
 
     private static String addBalanceLabel(String value) {
