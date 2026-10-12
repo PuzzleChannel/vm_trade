@@ -1,6 +1,6 @@
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
-import json, shutil, hashlib, tempfile
+import json, shutil, hashlib, tempfile, subprocess, sys
 
 ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT / 'vendor/open-trade-1.4.2.jar'
@@ -128,10 +128,34 @@ with tempfile.TemporaryDirectory() as td:
                 raise SystemExit(f'Unexpected localization bytecode in {cls}')
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    # Refuse to emit a release archive that is missing the player-facing
+    # interfaces/history classes restored from the legacy UI bundle.
+    required = [
+        'fabric.mod.json',
+        'vmtrade.mixins.json',
+        'vmtrade-custom.mixins.json',
+        'assets/opentrade/lang/ru_ru.json',
+        'assets/vmtrade/lang/ru_ru.json',
+        'com/puzzlechannel/vmtrade/TradeChestClientUi.class',
+        'com/puzzlechannel/vmtrade/SaleHistoryStore.class',
+        'com/puzzlechannel/vmtrade/TradeHistoryNetwork.class',
+        'com/puzzlechannel/vmtrade/TradeSyncService.class',
+        'com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class',
+        'com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class',
+    ]
+    missing = [name for name in required if not (stage / name).is_file()]
+    if missing:
+        raise SystemExit(f'Release archive is incomplete; missing entries: {missing}')
+
     with ZipFile(OUT, 'w', ZIP_DEFLATED, compresslevel=9) as z:
         for f in sorted(stage.rglob('*')):
             if f.is_file():
                 z.write(f, f.relative_to(stage).as_posix())
+
+# Run the same archive-integrity checks used by the release workflow. This
+# keeps the alternate build path from silently producing a JAR unlike Gradle.
+for check in ('verify_static.py', 'verify_release.py', 'verify_safety.py'):
+    subprocess.run([sys.executable, str(ROOT / 'tooling' / check), str(OUT)], check=True)
 
 sha = hashlib.sha256(OUT.read_bytes()).hexdigest()
 print(OUT)
