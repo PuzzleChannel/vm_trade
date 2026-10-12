@@ -5,8 +5,11 @@ import base64
 import re
 import tempfile
 
-ROOT = Path('/mnt/data/vmtrade_work2')
-JAR = ROOT / 'build/libs/vm-trade-1.0.20.jar'
+ROOT = Path(__file__).resolve().parents[1]
+VERSION = next((line.split('=', 1)[1].strip() for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')), None)
+if not VERSION:
+    raise SystemExit('version= missing from gradle.properties')
+JAR = ROOT / f'build/libs/vm-trade-{VERSION}.jar'
 CLASSES = [
     'net/onlyjugs/client/screen/MarketScreen.class',
     'net/onlyjugs/client/screen/TradeChestScreen.class',
