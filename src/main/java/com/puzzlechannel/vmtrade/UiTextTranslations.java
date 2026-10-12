@@ -47,6 +47,9 @@ public final class UiTextTranslations {
         String[][] exact = {
                 {"Market", "Маркет"},
                 {"Trade Chest", "Торговый сундук"},
+                {"Chest", "Сундук"},
+                {"Click", "Нажмите"}, {"Hold", "Удерживайте"},
+                {"No offers", "Нет предложений"},
                 {"Incoming", "Входящие доставки"},
                 {"Back", "Назад"},
                 {"Place Offer", "Выставить товар"},
@@ -54,7 +57,7 @@ public final class UiTextTranslations {
                 {"Qty", "Кол-во"}, {"qty", "кол-во"},
                 {"List", "Выставить"},
                 {"Cancel", "Отменить"},
-                {"Cancel buy order", "Отменить заявку"},
+                {"Cancel buy order", "Снять заявку"},
                 {"Search", "Поиск"},
                 {"Search items…", "Поиск предметов…"},
                 {"Search items?", "Поиск предметов…"},
@@ -74,10 +77,65 @@ public final class UiTextTranslations {
                 {"Item Detail", "Информация о предмете"},
                 {"No demand", "Нет спроса"},
                 {"Out of stock", "Нет в наличии"},
-                {"+1", "Внести 1 ВК"}, {"+64", "Внести 64 ВК"},
-                {"-1", "Вывести 1 ВК"}, {"-64", "Вывести 64 ВК"}
+                {"List for Sale", "Выставить"},
+                {"List Item", "Выставить предмет"},
+                {"Cancel Listing", "Снять"},
+                {"Cancel Sell Order", "Отменить заявку на продажу"},
+                {"Cancel Buy Order", "Отменить заявку на покупку"},
+                {"Place Buy Order", "Разместить заявку на покупку"},
+                {"Place Order", "Разместить заявку"},
+                {"Update Listing", "Обновить объявление"},
+                {"Withdraw", "Вывести"}, {"Deposit", "Пополнить"},
+                {"Withdraw 1 VC", "Вывести 1 ВК"}, {"Deposit 1 VC", "Пополнить на 1 ВК"},
+                {"Balance", "Баланс"},
+                {"Seller", "Продавец"}, {"Buyer", "Покупатель"}, {"Owner", "Владелец"},
+                {"Quantity", "Количество"}, {"Amount", "Количество"},
+                {"History", "История"}, {"Sales History", "История продаж"},
+                {"Price History", "История цен"},
+                {"Listing", "Объявление"}, {"Listings", "Объявления"},
+                {"Orders", "Заявки"}, {"Order", "Заявка"},
+                {"Delivery", "Доставка"}, {"Delivery Time", "Время доставки"},
+                {"Time", "Время"}, {"ETA", "Прибытие через"},
+                {"Status", "Статус"}, {"Stock", "В наличии"},
+                {"Total", "Итого"}, {"Item", "Предмет"},
+                {"Sort", "Сортировка"}, {"Sort by", "Сортировать по"},
+                {"Page", "Страница"}, {"Page:", "Страница:"},
+                {"Search…", "Поиск…"}, {"Clear", "Очистить"},
+                {"Refresh", "Обновить"}, {"Close", "Закрыть"},
+                {"Confirm", "Подтвердить"}, {"Done", "Готово"},
+                {"No results", "Ничего не найдено"},
+                {"No items found", "Предметы не найдены"},
+                {"No listings", "Нет объявлений"},
+                {"No sell orders", "Нет заявок на продажу"},
+                {"No buy orders", "Нет заявок на покупку"},
+                {"No recent trades", "Нет недавних сделок"},
+                {"No history yet", "Истории пока нет"},
+                {"No sales yet", "Продаж пока нет"},
+                {"Pending", "В ожидании"}, {"Completed", "Завершено"},
+                {"Failed", "Ошибка"}, {"Success", "Успешно"},
+                {"Available", "Доступно"}, {"Unavailable", "Недоступно"},
+                {"In stock", "В наличии"},
+                {"Search items...", "Поиск предметов..."},
+                {"Search...", "Поиск..."},
+                {"Convert", ""}, {"Convert Chest", ""},
+                {"Place", "Разместить"}, {"Open Market", "Открыть маркет"},
+                {"View Details", "Подробнее"}, {"Go Back", "Назад"},
+                {"Received", "Получено"}, {"Sales", "Продажи"},
+                {"Item Name", "Название предмета"},
+                {"Price Chart", "График цен"}, {"Price Graph", "График цен"},
+                {"Best Price", "Лучшая цена"}, {"Average Price", "Средняя цена"},
+                {"Last Price", "Последняя цена"}, {"Volume", "Объём"},
+                {"Offers", "Предложения"}, {"Offer", "Предложение"},
+                {"New", "Новый"}, {"Details", "Подробнее"},
+                {"Open", "Открыть"}, {"Select", "Выбрать"},
+                {"Selected", "Выбрано"}, {"Waiting", "Ожидание"},
+                {"Expired", "Истекло"}, {"Accepted", "Принято"},
+                {"Rejected", "Отклонено"},
+                {"+1", "+1 ВК"}, {"+64", "+64 ВК"},
+                {"-1", "−1 ВК"}, {"-64", "−64 ВК"},
         };
         for (String[] pair : exact) s = exact(s, pair[0], pair[1]);
+        s = translateSelectedTimeframe(s);
 
         // 2) Exact/full-sentence translations BEFORE generic connector replacements.
         String[][] full = {
@@ -87,6 +145,25 @@ public final class UiTextTranslations {
                 {"No incoming deliveries", "Нет входящих доставок"},
                 {"§7No listings yet.", "§7Объявлений пока нет."},
                 {"§7No matches.", "§7Совпадений нет."},
+                {"§7No items found.", "§7Предметы не найдены."},
+                {"§7No sell orders yet.", "§7Заявок на продажу пока нет."},
+                {"§7No buy orders yet.", "§7Заявок на покупку пока нет."},
+                {"§7No recent trades.", "§7Недавних сделок пока нет."},
+                {"§7No price history available.", "§7История цен недоступна."},
+                {"§7No price data yet.", "§7Данных о ценах пока нет."},
+                {"§7No offers yet.", "§7Предложений пока нет."},
+                {"§7No buy orders match this item.", "§7Нет заявок на покупку этого предмета."},
+                {"§7No sell orders match this item.", "§7Нет заявок на продажу этого предмета."},
+                {"§7No matching items.", "§7Подходящие предметы не найдены."},
+                {"§7Search for items...", "§7Поиск предметов..."},
+                {"§7Enter an amount.", "§7Введите количество."},
+                {"§7Enter a price.", "§7Введите цену."},
+                {"§7Click to list this item.", "§7Нажмите, чтобы выставить предмет на продажу."},
+                {"§7Click to cancel this order.", "§7Нажмите, чтобы отменить эту заявку."},
+                {"§7Click to cancel your listing.", "§7Нажмите, чтобы снять своё объявление."},
+                {"§7Click to return to the market.", "§7Нажмите, чтобы вернуться на рынок."},
+                {"§7Click to place a buy order.", "§7Нажмите, чтобы разместить заявку на покупку."},
+                {"§7Click to place a sell order.", "§7Нажмите, чтобы разместить объявление о продаже."},
                 {"No offers — click to place a buy order", "Нет предложений — нажмите, чтобы разместить заявку на покупку"},
                 {"§7Click to manage.", "§7Нажмите, чтобы управлять."},
                 {"§7Click to buy the whole stack (", "§7Нажмите, чтобы купить весь стак ("},
@@ -105,12 +182,31 @@ public final class UiTextTranslations {
                 {"§cThat listing is empty.", "§cЭто объявление пусто."},
                 {"§cThat listing is no longer available.", "§cЭто объявление больше недоступно."},
                 {"§cThat listing's price changed or it was removed.", "§cЦена объявления изменилась или оно было снято."},
+                {"§cInvalid price.", "§cНекорректная цена."},
+                {"§cPrice must be at least 3.", "§cЦена должна быть не меньше 3."},
+                {"§cThe price must be at least 3.", "§cЦена должна быть не меньше 3."},
+                {"§cEnter a valid quantity.", "§cВведите корректное количество."},
+                {"§cInvalid quantity.", "§cНекорректное количество."},
+                {"§cAmount must be greater than 0.", "§cКоличество должно быть больше 0."},
+                {"§cNot enough VMCoin.", "§cНедостаточно ВМуткоинов."},
+                {"§cNot enough emeralds.", "§cНедостаточно ВМуткоинов."},
+                {"§cNot enough items.", "§cНедостаточно предметов."},
+                {"§cYour inventory is full.", "§cВаш инвентарь заполнен."},
+                {"§cInventory is full.", "§cИнвентарь заполнен."},
+                {"§cYou don't have enough currency.", "§cНедостаточно средств."},
+                {"§cYou don't have enough VMCoin.", "§cНедостаточно ВМуткоинов."},
+                {"§cCould not complete trade.", "§cНе удалось завершить сделку."},
+                {"§cOrder not found.", "§cЗаявка не найдена."},
+                {"§cListing not found.", "§cОбъявление не найдено."},
+                {"§cYou must select an item.", "§cСначала выберите предмет."},
+                {"§cYou can't sell this item.", "§cНельзя продать этот предмет."},
+                {"§cNo item selected.", "§cПредмет не выбран."},
                 {"§cTrade chest is full.", "§cТорговый сундук заполнен."},
                 {"§cYou can't buy your own listing.", "§cНельзя покупать собственное объявление."},
                 {"§cNo free slot in your Trade Chest to reserve for this order.", "§cВ торговом сундуке нет свободного слота для этой заявки."},
-                {"§7This is a Trade Chest owned by another player.", "§7Это не ваш Магазин"},
-                {"Trade Chest is owned by another player.", "Это не ваш Магазин"},
-                {"This trade chest is owned by another player.", "Это не ваш Магазин"},
+                {"§7This is a Trade Chest owned by another player.", "§7Это торговый сундук другого игрока."},
+                {"Trade Chest is owned by another player.", "Это торговый сундук другого игрока."},
+                {"This trade chest is owned by another player.", "Это торговый сундук другого игрока."},
                 {"§8Click to select. Shift-click Buy/Sell for up to 64.", "§8Нажмите для выбора. Shift + клик — купить или продать до 64 шт."}
         };
         for (String[] pair : full) s = replace(s, pair[0], pair[1]);
@@ -128,12 +224,62 @@ public final class UiTextTranslations {
         s = replace(s, "§7Price:", "§7Цена:");
         s = replace(s, "§7Stock:", "§7В наличии:");
         s = replace(s, "§7Requires:", "§7Требуется:");
+        s = replace(s, "List for Sale", "Выставить на продажу");
+        s = replace(s, "Cancel Listing", "Снять объявление");
+        s = replace(s, "Cancel Buy Order", "Отменить заявку на покупку");
+        s = replace(s, "Cancel Sell Order", "Отменить заявку на продажу");
+        s = replace(s, "Place Buy Order", "Разместить заявку на покупку");
+        s = replace(s, "Update Listing", "Обновить объявление");
+        s = replace(s, "Price per item", "Цена за предмет");
+        s = replace(s, "Average Price:", "Средняя цена:");
+        s = replace(s, "Best Price:", "Лучшая цена:");
+        s = replace(s, "Last Price:", "Последняя цена:");
+        s = replace(s, "Price Chart:", "График цен:");
+        s = replace(s, "Price Graph:", "График цен:");
+        s = replace(s, "Volume:", "Объём:");
+        s = replace(s, "Time:", "Время:");
+        s = replace(s, "Offers:", "Предложения:");
+        s = replace(s, "Quantity:", "Количество:");
+        s = replace(s, "Amount:", "Количество:");
+        s = replace(s, "Seller:", "Продавец:");
+        s = replace(s, "Buyer:", "Покупатель:");
+        s = replace(s, "Owner:", "Владелец:");
+        s = replace(s, "Total:", "Итого:");
+        s = replace(s, "Status:", "Статус:");
+        s = replace(s, "Sell Order:", "Заявка на продажу:");
+        s = replace(s, "Buy Order:", "Заявка на покупку:");
+        s = replace(s, "Listings:", "Объявления:");
+        s = replace(s, "Orders:", "Заявки:");
+        s = replace(s, "Delivery:", "Доставка:");
+        s = replace(s, "History:", "История:");
+        s = replace(s, "Sales History:", "История продаж:");
+        s = replace(s, "Price History:", "История цен:");
+        s = replace(s, "No results found", "Ничего не найдено");
+        s = replace(s, "No items found", "Предметы не найдены");
+        s = replace(s, "No listings yet", "Объявлений пока нет");
+        s = replace(s, "No sell orders yet", "Заявок на продажу пока нет");
+        s = replace(s, "No buy orders yet", "Заявок на покупку пока нет");
+        s = replace(s, "No recent trades", "Недавних сделок пока нет");
+        s = replace(s, "No price history available", "История цен недоступна");
+        s = replace(s, "Could not find listing", "Не удалось найти объявление");
+        s = replace(s, "could not find listing", "не удалось найти объявление");
+        s = replace(s, "Successfully listed ", "Вы выставили на продажу ");
+        s = replace(s, "Successfully cancelled ", "Вы отменили ");
+        s = replace(s, "Listing cancelled.", "Объявление снято.");
+        s = replace(s, "Listing updated.", "Объявление обновлено.");
+        s = replace(s, "Listing created.", "Объявление создано.");
+        s = replace(s, "Order placed.", "Заявка размещена.");
+        s = replace(s, "Order cancelled.", "Заявка отменена.");
+        s = replace(s, "Deposit complete.", "Пополнение выполнено.");
+        s = replace(s, "Withdraw complete.", "Вывод выполнен.");
+        s = replace(s, "Delivery complete.", "Доставка завершена.");
+        s = replace(s, "Purchase complete.", "Покупка завершена.");
 
         // 4) Server messages with dynamic values. These run before generic English
         // connector replacements so phrases such as "at a time" stay intact.
         s = replace(s, "§aChest converted to Trade Chest.", "§aСундук преобразован в торговый сундук.");
         s = replace(s, "§aOrder cancelled. Refunded ", "§aЗаявка отменена. Возвращено ");
-        s = replace(s, "§aOrder placed: filled ", "§aЗаявка размещена: сразу исполнено ");
+        s = replace(s, "§aOrder placed: filled ", "§aЗаявка размещена: исполнено ");
         s = replace(s, "§aBuy order placed for ", "§aЗаявка на покупку размещена: ");
         s = replace(s, "§aPurchased ", "§aКуплено ");
         s = replace(s, "§cCouldn't buy any — out of ", "§cНе удалось ничего купить — закончились ");
@@ -143,6 +289,7 @@ public final class UiTextTranslations {
         s = replace(s, "§cNot enough .", "§cНедостаточно .");
         s = replace(s, "§cYou have an active sell listing for this item. Cancel it before buying.", "§cУ вас есть активное объявление о продаже этого предмета. Отмените его перед покупкой.");
         s = replace(s, "§cYou have an open buy order for this item. Cancel it before selling.", "§cУ вас есть открытая заявка на покупку этого предмета. Отмените её перед продажей.");
+        s = replace(s, "§cYou already have a buy order for this item at  E. Cancel it first to use a different price.", "§cУ вас уже есть заявка на покупку этого предмета по цене  ВК. Сначала отмените её, чтобы изменить цену.");
         s = replace(s, "§cYour Trade Chest has no room for this item.", "§cВ вашем торговом сундуке нет места для этого предмета.");
         s = replace(s, "§cYour Trade Chest is no longer available.", "§cВаш торговый сундук больше недоступен.");
 
@@ -163,7 +310,6 @@ public final class UiTextTranslations {
         s = replace(s, "Trade Chest has active sale offers.", "В торговом сундуке есть активные объявления о продаже.");
         s = replace(s, "Trade Chest has an incoming delivery.", "В торговом сундуке есть входящая доставка.");
         s = replace(s, "Trade Chest has an open buy order.", "В торговом сундуке есть открытая заявка на покупку.");
-        s = replace(s, "Trade Chest is owned by another player.", "Это не ваш Магазин");
         s = replace(s, "§7+ ", "§7+ ");
 
         // 7) Currency normalization, including the original plural suffix that was
@@ -174,6 +320,23 @@ public final class UiTextTranslations {
         s = addBalanceLabel(s);
 
         return s;
+    }
+
+    private static String translateSelectedTimeframe(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        Matcher matcher = Pattern.compile("(?i)^(all|d|w|m|y)(\\s*[✓✔●*]?)$").matcher(trimmed);
+        if (!matcher.matches()) return value;
+        String key = matcher.group(1).toUpperCase(java.util.Locale.ROOT);
+        String translated = switch (key) {
+            case "ALL" -> "ВСЕ";
+            case "D" -> "Д";
+            case "W" -> "Н";
+            case "M" -> "М";
+            case "Y" -> "Г";
+            default -> matcher.group(1);
+        };
+        return translated + matcher.group(2);
     }
 
     private static String addBalanceLabel(String value) {

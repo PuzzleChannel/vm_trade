@@ -21,3 +21,19 @@ The release build copies the pristine vendor Open Trade classes unchanged and on
 ## Currency stack size
 
 VМуткоин (ВК) has a maximum stack size of 1000 per slot so large market balances occupy less inventory space.
+
+## Build and release checks
+
+Use Java 25 and run these from the repository root:
+
+```bash
+./gradlew --no-daemon clean build verifyJar
+python tooling/verify_static.py
+python tooling/verify_release.py
+python tooling/verify_safety.py
+python tooling/verify_translation.py
+```
+
+The release checks verify the mod metadata/version, required resources and mixins, absence of development stubs, duplicate ZIP entries, and byte-for-byte preservation of critical Open Trade classes. The checks are also run by GitHub Actions on pushes and pull requests.
+
+These are archive-integrity and regression checks, not proof against every in-game exploit. Before deploying an update, test on a backup world with two clients: simultaneous purchase of one listing, repeated clicks/packets, cancellation followed by relog, full inventory, disconnect during purchase, and server restart while listings/deliveries exist.

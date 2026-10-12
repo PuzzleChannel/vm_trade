@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.core.Registry;
 
 public final class VmTradeInitializer implements ModInitializer {
@@ -40,6 +41,7 @@ public final class VmTradeInitializer implements ModInitializer {
         registerMarket();
         forceVmCoinCurrency();
         installOriginalOpenTrade();
+        installLegacySalesHistory();
         includeMarketInTradeChestBlockEntity();
         registerMarketBlockEntityType();
         installCreativeEntries();
@@ -52,7 +54,10 @@ public final class VmTradeInitializer implements ModInitializer {
 
     private static void registerMarket() {
         MARKET = Registry.register(registry("BLOCK"), MARKET_KEY,
-                new MarketBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHEST).setId(MARKET_KEY).strength(3.5f)));
+                new MarketBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHEST)
+                        .setId(MARKET_KEY)
+                        .strength(-1.0f, 3600000.0f)
+                        .pushReaction(PushReaction.BLOCK)));
         ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, id("market"));
         MARKET_ITEM = Registry.register(registry("ITEM"), itemKey,
                 new BlockItem(MARKET, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
@@ -179,6 +184,27 @@ public final class VmTradeInitializer implements ModInitializer {
         net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
                 .modifyOutputEvent(net.minecraft.world.item.CreativeModeTabs.INGREDIENTS)
                 .register(output -> output.prepend(VMCOIN));
+    }
+
+    /**
+     * Restore the previous release's player sales history and delivery-sync feature.
+     * These classes are shipped from the last complete VM Trade UI bundle so the
+     * original Open Trade screens can remain untouched.
+     */
+    private static void installLegacySalesHistory() {
+        try {
+            Class.forName("com.puzzlechannel.vmtrade.TradeSyncService")
+                    .getMethod("install").invoke(null);
+            Class<?> serverClass = Class.forName("net.minecraft.server.MinecraftServer");
+            Class.forName("com.puzzlechannel.vmtrade.SaleHistoryStore")
+                    .getMethod("initialize", serverClass).invoke(null, new Object[]{null});
+            Class.forName("com.puzzlechannel.vmtrade.TradeHistoryNetwork")
+                    .getMethod("registerServer").invoke(null);
+        } catch (ReflectiveOperationException e) {
+            Throwable cause = e instanceof java.lang.reflect.InvocationTargetException invocation
+                    && invocation.getCause() != null ? invocation.getCause() : e;
+            throw new RuntimeException("Unable to restore VM Trade sales history", cause);
+        }
     }
 
     private static void installOriginalOpenTrade() {

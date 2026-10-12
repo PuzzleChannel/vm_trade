@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "com.puzzlechannel.vmtrade.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CancelListingReturnMixin",
+    "ServerTransactionGuardMixin",
+    "VmTradeUiTranslationServerMixin"
+  ],
+  "client": [
+    "UiTranslationClientMixin",
+    "MarketScreenLayoutMixin",
+    "MarketReturnClientMixin",
+    "TradeChestWalletOrderMixin",
+    "TradeChestScreenPolishMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

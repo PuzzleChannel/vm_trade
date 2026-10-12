@@ -1,26 +1,18 @@
 {
   "schemaVersion": 1,
   "id": "vmtrade",
-  "version": "1.0.21",
+  "version": "1.0.39",
   "name": "ВМ Трейд",
-  "description": "Игроковый рынок и экономика ВМуткоинов для Minecraft 26.2 Fabric.",
-  "authors": [
-    "PuzzleChannel"
-  ],
+  "description": "Рынок игроков и экономика на основе ВМуткоинов для Minecraft 26.2 Fabric.",
+  "authors": ["PuzzleChannel"],
   "license": "ARR-derived binary rework",
   "icon": "assets/opentrade/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.puzzlechannel.vmtrade.VmTradeInitializer"
-    ],
-    "client": [
-      "com.puzzlechannel.vmtrade.VmTradeClientInitializer"
-    ]
+    "main": ["com.puzzlechannel.vmtrade.VmTradeInitializer"],
+    "client": ["com.puzzlechannel.vmtrade.VmTradeClientInitializer"]
   },
-  "mixins": [
-    "vmtrade.mixins.json"
-  ],
+  "mixins": ["vmtrade.mixins.json", "vmtrade-custom.mixins.json"],
   "depends": {
     "fabricloader": ">=0.19.0",
     "minecraft": ">=26.2 <26.3",
@@ -28,6 +20,8 @@
     "fabric-registry-sync-v0": "*",
     "fabric-networking-api-v1": "*",
     "fabric-resource-loader-v0": "*",
+    "fabric-lifecycle-events-v1": "*",
+    "fabric-screen-api-v1": "*",
     "fabric-creative-tab-api-v1": "*"
   },
   "accessWidener": "opentrade.accesswidener"
