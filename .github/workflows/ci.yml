@@ -32,7 +32,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check Pillow
 
       - name: Build the mod
-        run: ./gradlew --no-daemon clean build verifyJar
+        run: bash gradlew --no-daemon clean build verifyJar
 
       - name: Verify release structure
         run: |
