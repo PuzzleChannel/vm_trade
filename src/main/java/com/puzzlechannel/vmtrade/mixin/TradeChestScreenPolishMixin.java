@@ -1,9 +1,10 @@
 package com.puzzlechannel.vmtrade.mixin;
 
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -73,8 +74,8 @@ public abstract class TradeChestScreenPolishMixin {
             require = 1
     )
     private void vmtrade$hideTitleAndRenderCoinBalance(
-            @Coerce Object graphics,
-            @Coerce Object font,
+            GuiGraphicsExtractor graphics,
+            Font font,
             Component component,
             int x,
             int y,
