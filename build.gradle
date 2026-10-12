@@ -76,6 +76,7 @@ tasks.jar {
             exclude 'net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class'
             exclude 'net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class'
             exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
+            exclude 'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class'
             exclude 'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class'
             exclude 'net/onlyjugs/neoforge/**'
             exclude 'opentrade-neoforge.mixins.json'
@@ -173,6 +174,8 @@ tasks.register('verifyJar') {
                 if (zip.getEntry('net/onlyjugs/fabric/mixin/' + name + '.class') != null) throw new GradleException('Legacy mixin class leaked into output: ' + name)
             }
             if (zip.getEntry('opentrade-fabric.mixins.json') != null) throw new GradleException('Original Open Trade mixin config leaked into output')
+            if (zip.getEntry('net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class') != null) throw new GradleException('Stale upstream server translation mixin leaked into output')
+            if (zip.getEntry('net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class') != null) throw new GradleException('Stale upstream client translation mixin leaked into output')
             if (zip.getEntry('net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class') != null) throw new GradleException('Convert button mixin class leaked into output')
             if (zip.getEntry('net/onlyjugs/neoforge/OpenTradeNeoForge.class') != null) throw new GradleException('NeoForge content leaked into output')
             if (zip.getEntry('assets/opentrade/lang/en_us.json') != null) throw new GradleException('Original English language file leaked into output')
