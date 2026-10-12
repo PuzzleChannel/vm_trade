@@ -4,6 +4,7 @@ import json, shutil, hashlib, tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT / 'vendor/open-trade-1.4.2.jar'
+LEGACY_UI = ROOT / 'VMTrade-1.0.26-ui-deselect-back-alignment.jar'
 VERSION = next((line.split('=', 1)[1].strip() for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')), None)
 if not VERSION:
     raise SystemExit('version= missing from gradle.properties')
@@ -16,6 +17,16 @@ EXACT_EXCLUDES = {
     'opentrade-fabric.mixins.json',
     'assets/opentrade/lang/en_us.json',
     'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class',
+    # The current mixins are isolated under com.puzzlechannel.vmtrade.mixin.
+    # Never ship old/repackaged copies under the vendor namespace.
+    'net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class',
+    'net/onlyjugs/fabric/mixin/MarketReturnClientMixin.class',
+    'net/onlyjugs/fabric/mixin/MarketScreenBackMixin.class',
+    'net/onlyjugs/fabric/mixin/MarketScreenLayoutMixin.class',
+    'net/onlyjugs/fabric/mixin/ServerTransactionGuardMixin.class',
+    'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class',
+    'net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class',
+    'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class',
     'opentrade-neoforge.mixins.json',
     'META-INF/accesstransformer.cfg',
     'META-INF/neoforge.mods.toml',
@@ -25,6 +36,7 @@ def forbidden(name: str) -> bool:
     return name in EXACT_EXCLUDES or name.startswith('net/onlyjugs/neoforge/') or name.startswith('META-INF/forgix/')
 
 if not VENDOR.exists(): raise SystemExit('vendor jar missing')
+if not LEGACY_UI.exists(): raise SystemExit('legacy VM Trade UI jar missing')
 if not CLASSES.exists(): raise SystemExit('compiled classes missing')
 
 # The VМуткоин must use a 1000-item maximum stack; keep this a source-level
@@ -53,6 +65,26 @@ with tempfile.TemporaryDirectory() as td:
             dest = stage / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(f, dest)
+
+    # Restore previously shipped VM Trade UI/history classes that are not in
+    # the source tree. Prefer freshly compiled current classes on path collisions,
+    # matching Gradle's first-wins duplicate strategy.
+    with ZipFile(LEGACY_UI) as legacy:
+        for info in legacy.infolist():
+            n = info.filename
+            if n.endswith('/'):
+                continue
+            if not (n.startswith('com/puzzlechannel/vmtrade/')
+                    or n in {
+                        'net/onlyjugs/fabric/mixin/CurrencyDisplayMixin.class',
+                        'net/onlyjugs/fabric/mixin/ItemKeysLabelMixin.class',
+                    }):
+                continue
+            dest = stage / n
+            if dest.exists():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(legacy.read(n))
 
     # Only resources/metadata are localized or changed.
     for f in RES.rglob('*'):
