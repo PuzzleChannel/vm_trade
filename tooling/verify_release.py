@@ -29,6 +29,11 @@ with ZipFile(jar) as z:
         assert has_class_level_mixin_annotation(z.read(p)), f"Legacy UI mixin lacks @Mixin: {p}"
     for p in ["com/puzzlechannel/vmtrade/TradeChestClientUi.class","com/puzzlechannel/vmtrade/SaleHistoryStore.class","com/puzzlechannel/vmtrade/TradeHistoryNetwork.class","com/puzzlechannel/vmtrade/TradeSyncService.class"]:
         assert p in names,p
+    for n in ["CurrencyDisplayMixin","ItemKeysLabelMixin"]:
+        p=f"net/onlyjugs/fabric/mixin/{n}.class"; assert p in names,p
+        assert has_class_level_mixin_annotation(z.read(p)), f"Legacy UI mixin lacks @Mixin: {p}"
+    for p in ["com/puzzlechannel/vmtrade/TradeChestClientUi.class","com/puzzlechannel/vmtrade/SaleHistoryStore.class","com/puzzlechannel/vmtrade/TradeHistoryNetwork.class","com/puzzlechannel/vmtrade/TradeSyncService.class"]:
+        assert p in names,p
     req=["com/puzzlechannel/vmtrade/MarketBlock.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","opentrade.accesswidener","assets/opentrade/lang/ru_ru.json","assets/vmtrade/lang/ru_ru.json","assets/vmtrade/models/block/market.json","assets/vmtrade/items/market.json","assets/vmtrade/models/item/market.json","assets/vmtrade/blockstates/market.json","assets/vmtrade/textures/block/market_front.png","assets/vmtrade/textures/block/market_side.png","assets/vmtrade/textures/block/market_top.png","assets/vmtrade/textures/block/market_bottom.png"]
     for p in req: assert p in names,p
     for tex in ["market_front.png","market_side.png","market_top.png","market_bottom.png"]:
