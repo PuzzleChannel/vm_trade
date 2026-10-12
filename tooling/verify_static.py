@@ -1,9 +1,14 @@
 import json, zipfile, sys
-jar = sys.argv[1] if len(sys.argv) > 1 else "build/libs/vm-trade-1.0.20.jar"
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+VERSION = next((line.split('=', 1)[1].strip() for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')), None)
+if not VERSION:
+    raise SystemExit('version= missing from gradle.properties')
+jar = sys.argv[1] if len(sys.argv) > 1 else str(ROOT / f"build/libs/vm-trade-{VERSION}.jar")
 with zipfile.ZipFile(jar) as z:
     names=set(z.namelist())
     meta=json.loads(z.read("fabric.mod.json"))
-    assert meta["id"]=="vmtrade" and meta["version"]=="1.0.20"
+    assert meta["id"]=="vmtrade" and meta["version"]==VERSION
     assert meta["depends"]["minecraft"]==">=26.2 <26.3"
     assert meta.get("accessWidener")=="opentrade.accesswidener"
     assert "opentrade.accesswidener" in names
