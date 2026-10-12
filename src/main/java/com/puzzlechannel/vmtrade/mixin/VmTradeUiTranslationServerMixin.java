@@ -16,7 +16,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
         "net.onlyjugs.net.OpenTradeNet$2",
         "net.onlyjugs.net.OpenTradeNet$3",
         "net.onlyjugs.net.OpenTradeNet$4",
-        "net.onlyjugs.OpenTrade"
+        "net.onlyjugs.OpenTrade",
+        "com.puzzlechannel.vmtrade.TradeHistoryNetwork",
+        "com.puzzlechannel.vmtrade.TradeSyncService"
 })
 public abstract class VmTradeUiTranslationServerMixin {
     @Redirect(
