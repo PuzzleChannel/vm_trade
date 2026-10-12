@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "vmtrade",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "name": "ВМ Трейд",
   "description": "Игроковый рынок и экономика ВМуткоинов для Minecraft 26.2 Fabric.",
   "authors": [

@@ -9,6 +9,7 @@ with zipfile.ZipFile(jar) as z:
     names=set(z.namelist())
     meta=json.loads(z.read("fabric.mod.json"))
     assert meta["id"]=="vmtrade" and meta["version"]==VERSION
+    assert "vmtrade-server.mixins.json" in meta.get("mixins",[])
     assert meta["depends"]["minecraft"]==">=26.2 <26.3"
     assert meta.get("accessWidener")=="opentrade.accesswidener"
     assert "opentrade.accesswidener" in names
