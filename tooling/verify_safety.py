@@ -41,6 +41,22 @@ cancel=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/CancelListingReturnM
 a=cancel.find("menu.stageContainer().setItem(0, ItemStack.EMPTY)"); b=cancel.find("player.getInventory().add(returned)"); c=cancel.find("player.drop(returned, false)")
 if min(a,b,c)<0 or not a<b<c: raise AssertionError("Cancelled listing must be removed from staging before inventory insertion/drop")
 transaction=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.java").read_text(encoding="utf-8")
+expected_payloads = {
+    "vmtrade$guardBuy": "BuyListingPayload",
+    "vmtrade$guardUniqueBuy": "BuyUniqueStackPayload",
+    "vmtrade$guardWallet": "WalletActionPayload",
+    "vmtrade$guardPlaceOrder": "PlaceBuyOrderPayload",
+    "vmtrade$guardCancelOrder": "CancelBuyOrderPayload",
+    "vmtrade$guardVillagerTrade": "VillagerExecuteTradePayload",
+    "vmtrade$guardSetListing": "SetListingPayload",
+    "vmtrade$guardListStage": "ListStagePayload",
+    "vmtrade$guardCancelStage": "CancelStageListingPayload",
+}
+if "@Coerce Object payload" in transaction:
+    raise AssertionError("Transaction guard must use exact payload parameter types")
+for method, payload_type in expected_payloads.items():
+    if f"{method}(net.onlyjugs.net.{payload_type} payload, ServerPlayer player, CallbackInfo ci)" not in transaction:
+        raise AssertionError(f"Wrong target descriptor for {method}: expected {payload_type}")
 for h in ("handleBuy","handleBuyUniqueStack","handleWallet","handlePlaceBuyOrder","handleCancelBuyOrder","handleVillagerExecute","handleListStage","handleCancelStageListing","handleSetListing"):
     if f'method = "{h}"' not in transaction: raise AssertionError(f"Missing server transaction guard for {h}")
 if "TransactionGuard.allow" not in transaction or "ci.cancel()" not in transaction: raise AssertionError("Server guard does not reject replay/invalid requests")
