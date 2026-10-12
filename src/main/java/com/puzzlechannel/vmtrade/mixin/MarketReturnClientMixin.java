@@ -1,4 +1,4 @@
-package net.onlyjugs.fabric.mixin;
+package com.puzzlechannel.vmtrade.mixin;
 
 import net.onlyjugs.client.ItemDetailCache;
 import net.onlyjugs.net.MarketResultsPayload;

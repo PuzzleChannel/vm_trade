@@ -1,4 +1,4 @@
-package net.onlyjugs.fabric.mixin;
+package com.puzzlechannel.vmtrade.mixin;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

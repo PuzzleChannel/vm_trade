@@ -1,4 +1,4 @@
-package net.onlyjugs.fabric.mixin;
+package com.puzzlechannel.vmtrade.mixin;
 
 import com.puzzlechannel.vmtrade.TransactionGuard;
 import net.minecraft.server.level.ServerPlayer;

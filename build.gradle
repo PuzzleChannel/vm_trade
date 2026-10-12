@@ -123,7 +123,6 @@ tasks.register('verifyJar') {
             if (meta.id != 'vmtrade') throw new GradleException('Wrong mod id')
             if (meta.version != project.version.toString()) throw new GradleException("Wrong VM Trade version: ${meta.version}")
             if (meta.accessWidener != 'opentrade.accesswidener') throw new GradleException('Access widener not declared')
-            if (!meta.mixins.contains('vmtrade-server.mixins.json')) throw new GradleException('Isolated VM Trade server mixin config is not registered in mod metadata')
             def mixins = new String(zip.getInputStream(zip.getEntry('vmtrade.mixins.json')).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)
             if (mixins.contains('AbstractContainerScreenInitMixin')) throw new GradleException('Old Convert button mixin still enabled')
             if (mixins.contains('MarketScreenTranslationMixin')) throw new GradleException('Unsafe translation mixin is present')

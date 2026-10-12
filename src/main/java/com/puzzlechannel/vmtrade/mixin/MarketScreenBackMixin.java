@@ -1,4 +1,4 @@
-package net.onlyjugs.fabric.mixin;
+package com.puzzlechannel.vmtrade.mixin;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.onlyjugs.net.OpenMarketPayload;
