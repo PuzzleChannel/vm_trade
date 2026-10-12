@@ -168,7 +168,13 @@ with tempfile.TemporaryDirectory() as td_raw:
             'Back', 'Offer', 'Orders', 'Trades', 'Price', 'Qty', 'Chest', 'Incoming',
             'No ', 'This trade chest', 'Search', 'Buy', 'Sell', 'Market', 'Delivery', 'Click', 'Hold',
             'Not enough', 'You ', 'Your ', 'Trade ', 'ETA', 'Wanted', 'No offers',
-            'Convert', 'Place'
+            'Convert', 'Place', 'Withdraw', 'Deposit', 'Balance', 'Wallet',
+            'History', 'Listing', 'Listings', 'Order', 'Orders', 'Seller', 'Buyer',
+            'Owner', 'Quantity', 'Amount', 'Status', 'Total', 'Sort', 'Delivery',
+            'Stock', 'Volume', 'Offer', 'Confirm', 'Close', 'Refresh', 'Details',
+            'Select', 'Available', 'Unavailable', 'Pending', 'Completed', 'Failed',
+            'Success', 'Item Name', 'Price Chart', 'Price Graph', 'Best Price',
+            'Average Price', 'Last Price'
         ])):
             remaining.append(src)
     if remaining:
@@ -178,5 +184,21 @@ with tempfile.TemporaryDirectory() as td_raw:
         actual = lookup.get(src)
         if actual != expected:
             raise AssertionError(f'Translation mismatch: {src!r} -> {actual!r}, expected {expected!r}')
+
+# Check resource-backed controls too: these are easy to overlook because the
+# runtime literal translator does not process Component.translatable resource keys.
+import json
+EXPECTED_BUTTONS = {
+    'opentrade.button.list': 'Выставить',
+    'opentrade.button.cancel': 'Снять',
+    'opentrade.button.deposit': 'Пополнить',
+    'opentrade.button.withdraw': 'Вывести',
+}
+for rel in ('assets/opentrade/lang/ru_ru.json', 'assets/vmtrade/lang/ru_ru.json'):
+    resource = json.loads((ROOT / 'src/main/resources' / rel).read_text(encoding='utf-8'))
+    for key, expected in EXPECTED_BUTTONS.items():
+        actual = resource.get(key)
+        if actual != expected:
+            raise AssertionError(f'{rel}: {key!r} -> {actual!r}; expected {expected!r}')
 
 print(f'VM Trade translation coverage: OK ({len(vals)} constants scanned + {len(EXPLICIT)} regression cases)')
