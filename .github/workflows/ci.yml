@@ -47,7 +47,7 @@ jobs:
           path: build/libs/vm-trade-*.jar
           if-no-files-found: error
       - name: Inspect upstream market screen symbols for targeted regression fixes
-        if: github.event_name == 'workflow_dispatch'
+        if: github.ref != ''
         run: |
           javap -classpath vendor/open-trade-1.4.2.jar -p net.onlyjugs.client.screen.MarketScreen
           javap -classpath vendor/open-trade-1.4.2.jar -c -p net.onlyjugs.client.screen.MarketScreen | grep -n -E -A45 -B12 'Back|Sell Orders|Recent Trades' || true
