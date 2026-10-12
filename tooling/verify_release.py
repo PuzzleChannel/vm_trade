@@ -41,6 +41,7 @@ with ZipFile(jar) as z:
     vendor_class_names={n for n in pristine.namelist() if n.startswith("net/onlyjugs/") and n.endswith(".class")}
     excluded_vendor_classes={
       "net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class",
+      "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class",
     }
     for name in sorted(vendor_class_names - excluded_vendor_classes):
       if name in names:
