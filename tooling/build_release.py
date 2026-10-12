@@ -154,7 +154,7 @@ with tempfile.TemporaryDirectory() as td:
 
 # Run the same archive-integrity checks used by the release workflow. This
 # keeps the alternate build path from silently producing a JAR unlike Gradle.
-for check in ('verify_static.py', 'verify_release.py', 'verify_safety.py'):
+for check in ('verify_static.py', 'verify_release.py', 'verify_safety.py', 'verify_translation.py'):
     subprocess.run([sys.executable, str(ROOT / 'tooling' / check), str(OUT)], check=True)
 
 sha = hashlib.sha256(OUT.read_bytes()).hexdigest()
