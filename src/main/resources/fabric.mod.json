@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "vmtrade",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "name": "ВМ Трейд",
   "description": "Игроковый рынок и экономика ВМуткоинов для Minecraft 26.2 Fabric.",
   "authors": ["PuzzleChannel"],
@@ -20,6 +20,8 @@
     "fabric-registry-sync-v0": "*",
     "fabric-networking-api-v1": "*",
     "fabric-resource-loader-v0": "*",
+    "fabric-lifecycle-events-v1": "*",
+    "fabric-screen-api-v1": "*",
     "fabric-creative-tab-api-v1": "*"
   },
   "accessWidener": "opentrade.accesswidener"
