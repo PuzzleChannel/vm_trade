@@ -32,7 +32,10 @@ IGNORE = {
     'LineNumberTable', 'Lookup', 'MethodParameters', 'Signature', 'SourceFile',
     'StackMapTable', 'Builder', 'Default', 'Entry', 'HistoryPoint', 'TooltipContext',
     'NORMAL', 'GUI_TEXTURED', 'ADVANCED', 'Level', 'D', 'F', 'I', 'J', 'W', 'M', 'Y',
-    'Z', 'VMCoin', 'minecraft:emerald'
+    'Z', 'VMCoin', 'minecraft:emerald',
+    # These strings are server console diagnostics, not player-facing UI.
+    '[OpenTrade] Failed to read config: \x01 — using defaults.',
+    '[OpenTrade] Failed to write default config: \x01'
 }
 
 EXPLICIT = {
