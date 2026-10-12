@@ -16,6 +16,15 @@ public final class TransactionGuardTest {
         require(TransactionGuard.allow(player, "wallet", "payload-A", 1_000_000_012L), "different operations need independent keys");
 
         TransactionGuard.resetForTests();
+        record CollisionInput(String value) {}
+        String collisionA = TransactionGuard.fingerprint(new CollisionInput("Aa"));
+        String collisionB = TransactionGuard.fingerprint(new CollisionInput("BB"));
+        require(!collisionA.equals(collisionB), "different payload contents must not collide in the replay fingerprint");
+        require(TransactionGuard.allow(player, "buy", collisionA, 100L), "first collision test payload should pass");
+        require(TransactionGuard.allow(player, "buy", collisionB, 101L), "distinct payload with same Java String hash should pass");
+        require(!TransactionGuard.allow(player, "buy", collisionA, 102L), "exact replay should still be blocked");
+
+        TransactionGuard.resetForTests();
         UUID spammer = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         for (int i = 0; i < 12; i++) {
             require(TransactionGuard.allow(spammer, "buy", "payload-" + i, 5_000_000_000L + i), "requests under cap should pass");
