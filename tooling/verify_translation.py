@@ -60,7 +60,8 @@ EXPLICIT = {
     '§7No listings yet.': '§7Объявлений пока нет.',
     "§cCan't buy the whole stack — buy one at a time.": "§cНельзя купить весь стак — покупайте по одному.",
     '§cNo listings at that price anymore.': '§cПо этой цене объявлений больше нет.',
-    '§cNot enough \1 to escrow that order.': '§cНедостаточно \1 для резервирования этой заявки.',
+    '§cNot enough \x01 to escrow that order.': '§cНедостаточно \x01 для резервирования этой заявки.',
+    '§cYou already have a buy order for this item at \x01 E. Cancel it first to use a different price.': '§cУ вас уже есть заявка на покупку этого предмета по цене \x01 ВК. Сначала отмените её, чтобы изменить цену.',
     '§cNot enough emeralds or chest space.': '§cНедостаточно ВК или места в торговом сундуке.',
 }
 
