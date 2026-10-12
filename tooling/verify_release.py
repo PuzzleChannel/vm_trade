@@ -24,6 +24,8 @@ with ZipFile(jar) as z:
         p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"; assert p in names,p
         b=z.read(p); assert has_class_level_mixin_annotation(b), f"@Mixin must be class-level RuntimeInvisibleAnnotations: {p}"
         assert f"net/onlyjugs/fabric/mixin/{n}.class" not in names
+    assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
+    assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" not in names
     for n in ["CurrencyDisplayMixin","ItemKeysLabelMixin"]:
         p=f"net/onlyjugs/fabric/mixin/{n}.class"; assert p in names,p
         assert has_class_level_mixin_annotation(z.read(p)), f"Legacy UI mixin lacks @Mixin: {p}"
