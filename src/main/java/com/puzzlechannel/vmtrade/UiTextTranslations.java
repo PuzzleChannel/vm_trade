@@ -112,6 +112,8 @@ public final class UiTextTranslations {
                 {"Failed", "Ошибка"}, {"Success", "Успешно"},
                 {"Available", "Доступно"}, {"Unavailable", "Недоступно"},
                 {"In stock", "В наличии"},
+                {"+1", "+1 ВК"}, {"+64", "+64 ВК"},
+                {"-1", "−1 ВК"}, {"-64", "−64 ВК"},
         };
         for (String[] pair : exact) s = exact(s, pair[0], pair[1]);
         s = translateSelectedTimeframe(s);
