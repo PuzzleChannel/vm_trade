@@ -23,7 +23,7 @@ public final class TransactionGuard {
         String text;
         try { text = payload.toString(); }
         catch (RuntimeException exception) { return false; }
-        String fingerprint = payload.getClass().getName() + ":" + Integer.toHexString(text.hashCode()) + ":" + text.length();
+        String fingerprint = payload.getClass().getName() + ":" + text;
         return allow(player.getUUID(), operation, fingerprint, System.nanoTime());
     }
 
