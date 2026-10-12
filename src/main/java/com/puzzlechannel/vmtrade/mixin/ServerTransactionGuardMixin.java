@@ -16,7 +16,7 @@ public abstract class ServerTransactionGuardMixin {
     @Inject(method = "handleBuy", at = @At("HEAD"), cancellable = true, remap = false)
     private static void vmtrade$guardBuy(net.onlyjugs.net.BuyListingPayload payload, ServerPlayer player, CallbackInfo ci) {
         if (!validItemKey(stringValue(payload, "itemKey")) || !validPrice(intValue(payload, "unitPrice"))
-                || intValue(payload, "quantity") < 0 || intValue(payload, "quantity") > MAX_BULK_QUANTITY) {
+                || intValue(payload, "quantity") < 1 || intValue(payload, "quantity") > MAX_BULK_QUANTITY) {
             ci.cancel(); return;
         }
         guard(player, "buy-listing", payload, ci);
