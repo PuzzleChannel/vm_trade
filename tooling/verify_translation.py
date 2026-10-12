@@ -53,7 +53,7 @@ EXPLICIT = {
     'Incoming — ETA: 10m': 'Входящая доставка — прибытие через: 10 мин',
     'ETA: 20s': 'Прибытие через: 20 с',
     'Wanted: 12x at 4 E': 'Нужно: 12x по 4 ВК',
-    'This trade chest is owned by another player.': 'Это не ваш Магазин',
+    'This trade chest is owned by another player.': 'Это торговый сундук другого игрока.',
     '§eBuy order: 3× @ 5 E': '§eЗаявка на покупку: 3× по 5 ВК',
     '§7Stock: 3 / 64': '§7В наличии: 3 / 64',
     '§7Price: 5 VMCoin (VC)s': '§7Цена: 5 ВМуткоин (ВК)',
