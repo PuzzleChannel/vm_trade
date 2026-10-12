@@ -31,6 +31,7 @@ Use Java 25 and run these from the repository root:
 python tooling/verify_static.py
 python tooling/verify_release.py
 python tooling/verify_safety.py
+python tooling/verify_translation.py
 ```
 
 The release checks verify the mod metadata/version, required resources and mixins, absence of development stubs, duplicate ZIP entries, and byte-for-byte preservation of critical Open Trade classes. The checks are also run by GitHub Actions on pushes and pull requests.
