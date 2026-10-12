@@ -1,4 +1,5 @@
 """Release-integrity and transaction-hardening checks for VM Trade."""
+from classfile_checks import has_class_level_mixin_annotation
 from pathlib import Path
 from zipfile import ZipFile
 import json,sys
@@ -25,7 +26,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"
         if p not in names: raise AssertionError(f"Configured Mixin class missing: {p}")
         b=release.read(p)
-        if b"Lorg/spongepowered/asm/mixin/Mixin;" not in b or b"RuntimeVisibleAnnotations" not in b: raise AssertionError(f"Configured class has no @Mixin annotation: {p}")
+        if not has_class_level_mixin_annotation(b): raise AssertionError(f"Configured class lacks class-level RuntimeInvisibleAnnotations @Mixin: {p}")
         if f"net/onlyjugs/fabric/mixin/{n}.class" in names: raise AssertionError(f"Legacy mixin namespace leaked: {n}")
     for p in ("org/spongepowered/asm/mixin/Mixin.class","net/minecraft/network/chat/Component.class","net/minecraft/world/inventory/MenuProvider.class","net/fabricmc/api/ModInitializer.class"):
         if p in names: raise AssertionError(f"Development stub leaked: {p}")
