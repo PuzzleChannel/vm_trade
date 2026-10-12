@@ -6,6 +6,7 @@ group = 'com.puzzlechannel'
 version = project.version
 
 def baseJar = file('vendor/open-trade-1.4.2.jar')
+def legacyUiJar = file('VMTrade-1.0.26-ui-deselect-back-alignment.jar')
 
 sourceSets {
     main {
@@ -93,11 +94,22 @@ tasks.jar {
         exclude 'net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class'
         exclude 'net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class'
     }
+    from {
+        zipTree(legacyUiJar).matching {
+            // Restore the UI, history, and wallet support classes from the last
+            // complete VM Trade interface while keeping the current initializer,
+            // economy guards, and VM Market classes from sourceSets.main.output.
+            include 'com/puzzlechannel/vmtrade/**'
+            include 'net/onlyjugs/fabric/mixin/CurrencyDisplayMixin.class'
+            include 'net/onlyjugs/fabric/mixin/ItemKeysLabelMixin.class'
+        }
+    }
 }
 
 tasks.register('verifyBaseJar') {
     doLast {
         if (!baseJar.exists()) throw new GradleException('Missing vendor/open-trade-1.4.2.jar')
+        if (!legacyUiJar.exists()) throw new GradleException('Missing VMTrade-1.0.26-ui-deselect-back-alignment.jar required to restore the player UI and sales history')
         def names = zipTree(baseJar).matching { include 'fabric.mod.json'; include 'net/onlyjugs/**' }.files
         if (!names) throw new GradleException('Base Open Trade jar is invalid or empty')
     }
@@ -125,7 +137,13 @@ tasks.register('verifyJar') {
                 'assets/vmtrade/items/vmcoin.json',
                 'assets/vmtrade/models/block/market.json',
                 'assets/vmtrade/blockstates/market.json',
-                'data/vmtrade/recipes/market.json'
+                'data/vmtrade/recipes/market.json',
+                'com/puzzlechannel/vmtrade/TradeChestClientUi.class',
+                'com/puzzlechannel/vmtrade/SaleHistoryStore.class',
+                'com/puzzlechannel/vmtrade/TradeHistoryNetwork.class',
+                'com/puzzlechannel/vmtrade/TradeSyncService.class',
+                'net/onlyjugs/fabric/mixin/CurrencyDisplayMixin.class',
+                'net/onlyjugs/fabric/mixin/ItemKeysLabelMixin.class'
             ]
             required.each { if (zip.getEntry(it) == null) throw new GradleException("Missing output entry: $it") }
             def meta = new groovy.json.JsonSlurper().parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
@@ -142,7 +160,7 @@ tasks.register('verifyJar') {
             def customMixinConfig = new groovy.json.JsonSlurper().parse(zip.getInputStream(customConfigEntry))
             if (customMixinConfig.package != 'com.puzzlechannel.vmtrade.mixin') throw new GradleException('VM Trade custom mixin package is not isolated')
             if (customMixinConfig.mixins != ['CancelListingReturnMixin', 'ServerTransactionGuardMixin', 'VmTradeUiTranslationServerMixin']) throw new GradleException('Unexpected VM Trade server mixin list')
-            if (customMixinConfig.client != ['UiTranslationClientMixin', 'MarketScreenLayoutMixin', 'MarketScreenBackMixin', 'MarketReturnClientMixin']) throw new GradleException('Unexpected VM Trade client mixin list')
+            if (customMixinConfig.client != ['UiTranslationClientMixin', 'MarketScreenLayoutMixin', 'MarketReturnClientMixin', 'TradeChestWalletOrderMixin']) throw new GradleException('Unexpected VM Trade client mixin list')
             def customMixinNames = customMixinConfig.mixins + customMixinConfig.client
             customMixinNames.each { name ->
                 def entry = zip.getEntry('com/puzzlechannel/vmtrade/mixin/' + name + '.class')
