@@ -14,7 +14,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(targets = {
         "net.onlyjugs.client.screen.MarketScreen",
         "net.onlyjugs.client.screen.TradeChestScreen",
-        "net.onlyjugs.client.screen.VillagerTradeScreen"
+        "net.onlyjugs.client.screen.VillagerTradeScreen",
+        "com.puzzlechannel.vmtrade.TradeChestClientUi",
+        "com.puzzlechannel.vmtrade.TradeChestClientUi$UiState",
+        "com.puzzlechannel.vmtrade.VmTradeUiHooks"
 })
 public abstract class UiTranslationClientMixin {
     @Redirect(
