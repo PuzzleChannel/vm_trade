@@ -2,12 +2,14 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import json, shutil, hashlib, tempfile
 
-ROOT = Path('/mnt/data/vmtrade_work2')
+ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT / 'vendor/open-trade-1.4.2.jar'
-OUT = ROOT / 'build/libs/vm-trade-1.0.20.jar'
+VERSION = next((line.split('=', 1)[1].strip() for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines() if line.startswith('version=')), None)
+if not VERSION:
+    raise SystemExit('version= missing from gradle.properties')
+OUT = ROOT / f'build/libs/vm-trade-{VERSION}.jar'
 CLASSES = ROOT / 'build/release_compile'
 RES = ROOT / 'src/main/resources'
-VERSION = '1.0.20'
 
 EXACT_EXCLUDES = {
     'fabric.mod.json',
