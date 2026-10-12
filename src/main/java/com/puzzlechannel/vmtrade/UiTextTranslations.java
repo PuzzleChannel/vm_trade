@@ -74,8 +74,6 @@ public final class UiTextTranslations {
                 {"Item Detail", "Информация о предмете"},
                 {"No demand", "Нет спроса"},
                 {"Out of stock", "Нет в наличии"},
-                {"+1", "Внести 1 ВК"}, {"+64", "Внести 64 ВК"},
-                {"-1", "Вывести 1 ВК"}, {"-64", "Вывести 64 ВК"}
         };
         for (String[] pair : exact) s = exact(s, pair[0], pair[1]);
 
