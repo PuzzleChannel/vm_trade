@@ -47,6 +47,9 @@ public final class UiTextTranslations {
         String[][] exact = {
                 {"Market", "Маркет"},
                 {"Trade Chest", "Торговый сундук"},
+                {"Chest", "Сундук"},
+                {"Click", "Нажмите"}, {"Hold", "Удерживайте"},
+                {"No offers", "Нет предложений"},
                 {"Incoming", "Входящие доставки"},
                 {"Back", "Назад"},
                 {"Place Offer", "Выставить товар"},
