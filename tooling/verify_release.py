@@ -24,7 +24,8 @@ with ZipFile(jar) as z:
   mix=json.loads(z.read("vmtrade.mixins.json"))
   assert "MarketScreenTranslationMixin" not in mix.get("client",[])
   assert "UiTranslationClientMixin" in mix.get("client",[])
-  assert "UiTranslationServerMixin" in mix.get("mixins",[])
+  assert "UiTranslationServerMixin" not in mix.get("mixins",[])
+  assert "VmTradeUiTranslationServerMixin" in mix.get("mixins",[])
   assert mix["package"]=="net.onlyjugs.fabric.mixin"
   for tex in ["market_front.png","market_side.png","market_top.png","market_bottom.png"]:
     im=Image.open(io.BytesIO(z.read("assets/vmtrade/textures/block/"+tex))).convert("RGBA")
@@ -52,9 +53,12 @@ with ZipFile(jar) as z:
   assert "net/onlyjugs/fabric/mixin/VmTradeClientTextMixin.class" not in names
   assert "net/onlyjugs/fabric/mixin/VmTradeServerTextMixin.class" not in names
   assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" in names
-  assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" in names
+  assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
+  assert "net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class" in names
   assert b"RuntimeVisibleAnnotations" in z.read("net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class")
-  assert b"RuntimeVisibleAnnotations" in z.read("net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class")
+  server_mix=z.read("net/onlyjugs/fabric/mixin/VmTradeUiTranslationServerMixin.class")
+  assert b"RuntimeVisibleAnnotations" in server_mix
+  assert b"Lorg/spongepowered/asm/mixin/Mixin;" in server_mix
   mb=z.read('com/puzzlechannel/vmtrade/MarketBlock.class')
   assert b'RenderShape' in mb and b'MODEL' in mb
 print("VM Trade release verification: OK")
