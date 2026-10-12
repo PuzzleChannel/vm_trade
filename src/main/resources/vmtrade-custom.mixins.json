@@ -10,8 +10,8 @@
   "client": [
     "UiTranslationClientMixin",
     "MarketScreenLayoutMixin",
-    "MarketScreenBackMixin",
-    "MarketReturnClientMixin"
+    "MarketReturnClientMixin",
+    "TradeChestWalletOrderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
