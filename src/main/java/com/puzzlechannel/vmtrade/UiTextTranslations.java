@@ -112,6 +112,18 @@ public final class UiTextTranslations {
                 {"Failed", "Ошибка"}, {"Success", "Успешно"},
                 {"Available", "Доступно"}, {"Unavailable", "Недоступно"},
                 {"In stock", "В наличии"},
+                {"Search items...", "Поиск предметов..."},
+                {"Search...", "Поиск..."},
+                {"Item Name", "Название предмета"},
+                {"Price Chart", "График цен"}, {"Price Graph", "График цен"},
+                {"Best Price", "Лучшая цена"}, {"Average Price", "Средняя цена"},
+                {"Last Price", "Последняя цена"}, {"Volume", "Объём"},
+                {"Offers", "Предложения"}, {"Offer", "Предложение"},
+                {"New", "Новый"}, {"Details", "Подробнее"},
+                {"Open", "Открыть"}, {"Select", "Выбрать"},
+                {"Selected", "Выбрано"}, {"Waiting", "Ожидание"},
+                {"Expired", "Истекло"}, {"Accepted", "Принято"},
+                {"Rejected", "Отклонено"},
                 {"+1", "+1 ВК"}, {"+64", "+64 ВК"},
                 {"-1", "−1 ВК"}, {"-64", "−64 ВК"},
         };
@@ -131,6 +143,10 @@ public final class UiTextTranslations {
                 {"§7No buy orders yet.", "§7Заявок на покупку пока нет."},
                 {"§7No recent trades.", "§7Недавних сделок пока нет."},
                 {"§7No price history available.", "§7История цен недоступна."},
+                {"§7No price data yet.", "§7Данных о ценах пока нет."},
+                {"§7No offers yet.", "§7Предложений пока нет."},
+                {"§7No buy orders match this item.", "§7Нет заявок на покупку этого предмета."},
+                {"§7No sell orders match this item.", "§7Нет заявок на продажу этого предмета."},
                 {"§7No matching items.", "§7Подходящие предметы не найдены."},
                 {"§7Search for items...", "§7Поиск предметов..."},
                 {"§7Enter an amount.", "§7Введите количество."},
@@ -208,6 +224,14 @@ public final class UiTextTranslations {
         s = replace(s, "Place Buy Order", "Разместить заявку на покупку");
         s = replace(s, "Update Listing", "Обновить объявление");
         s = replace(s, "Price per item", "Цена за предмет");
+        s = replace(s, "Average Price:", "Средняя цена:");
+        s = replace(s, "Best Price:", "Лучшая цена:");
+        s = replace(s, "Last Price:", "Последняя цена:");
+        s = replace(s, "Price Chart:", "График цен:");
+        s = replace(s, "Price Graph:", "График цен:");
+        s = replace(s, "Volume:", "Объём:");
+        s = replace(s, "Time:", "Время:");
+        s = replace(s, "Offers:", "Предложения:");
         s = replace(s, "Quantity:", "Количество:");
         s = replace(s, "Amount:", "Количество:");
         s = replace(s, "Seller:", "Продавец:");
