@@ -45,6 +45,7 @@ jobs:
           python tooling/verify_static.py
           python tooling/verify_release.py
           python tooling/verify_safety.py
+          python tooling/verify_translation.py
 
       - name: Upload release JAR
         uses: actions/upload-artifact@v4
