@@ -21,7 +21,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
     main=json.loads(release.read("vmtrade.mixins.json")); custom=json.loads(release.read("vmtrade-custom.mixins.json"))
     if "vmtrade-custom.mixins.json" not in meta.get("mixins",[]): raise AssertionError("Custom Mixin config is not registered in Fabric metadata")
     if main.get("package")!="net.onlyjugs.fabric.mixin" or main.get("mixins")!=["MinecraftServerTickMixin","ServerPlayerGameModeMixin","MerchantOpenScreenMixin"] or main.get("client",[])!=["CurrencyDisplayMixin","ItemKeysLabelMixin"]: raise AssertionError("Upstream Mixin config unexpectedly contains custom classes")
-    expected_server=["CancelListingReturnMixin","ServerTransactionGuardMixin","VmTradeUiTranslationServerMixin"]
+    expected_server=["CancelListingReturnMixin","ServerTransactionGuardMixin","StackLotPricingMixin","VmTradeUiTranslationServerMixin"]
     expected_client=["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin","TradeChestScreenPolishMixin"]
     if custom.get("package")!="com.puzzlechannel.vmtrade.mixin" or custom.get("mixins")!=expected_server or custom.get("client")!=expected_client: raise AssertionError("VM Trade mixins are not isolated/configured correctly")
     for n in expected_server+expected_client:
@@ -34,7 +34,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         if p in names: raise AssertionError(f"Development stub leaked: {p}")
     for p in ("net/onlyjugs/client/screen/MarketScreen.class","net/onlyjugs/client/screen/TradeChestScreen.class","net/onlyjugs/net/OpenTradeNet.class","net/onlyjugs/OpenTradeConfig.class"):
         if p not in names or p not in vendor.namelist() or release.read(p)!=vendor.read(p): raise AssertionError(f"Critical upstream class missing/modified: {p}")
-required_own=("com/puzzlechannel/vmtrade/VmTradeInitializer.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.class","com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class","com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestScreenPolishMixin.class","com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.class","com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.class")
+required_own=("com/puzzlechannel/vmtrade/VmTradeInitializer.class","com/puzzlechannel/vmtrade/UiTextTranslations.class","com/puzzlechannel/vmtrade/TransactionGuard.class","com/puzzlechannel/vmtrade/mixin/CancelListingReturnMixin.class","com/puzzlechannel/vmtrade/mixin/UiTranslationClientMixin.class","com/puzzlechannel/vmtrade/mixin/VmTradeUiTranslationServerMixin.class","com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestWalletOrderMixin.class","com/puzzlechannel/vmtrade/mixin/TradeChestScreenPolishMixin.class","com/puzzlechannel/vmtrade/mixin/MarketReturnClientMixin.class","com/puzzlechannel/vmtrade/mixin/ServerTransactionGuardMixin.class","com/puzzlechannel/vmtrade/mixin/StackLotPricingMixin.class")
 with ZipFile(jar_path) as release:
     names=set(release.namelist())
     for p in required_own:
@@ -62,6 +62,19 @@ for method, payload_type in expected_payloads.items():
 for h in ("handleBuy","handleBuyUniqueStack","handleWallet","handlePlaceBuyOrder","handleCancelBuyOrder","handleVillagerExecute","handleListStage","handleCancelStageListing","handleSetListing"):
     if f'method = "{h}"' not in transaction: raise AssertionError(f"Missing server transaction guard for {h}")
 if "TransactionGuard.allow" not in transaction or "ci.cancel()" not in transaction: raise AssertionError("Server guard does not reject replay/invalid requests")
+lot_state=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/LotPricingState.java").read_text(encoding="utf-8")
+if "requested != actualCount" not in lot_state or "ACTIVE_LOT_PRICE.set(expectedPrice)" not in lot_state:
+    raise AssertionError("Whole-lot price context does not require the exact current stack quantity")
+if "LotPricingState.beginUniquePurchase(payload, player)" not in transaction:
+    raise AssertionError("Server guard does not bind validated whole-lot pricing context")
+lot_mixin=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/StackLotPricingMixin.java").read_text(encoding="utf-8")
+for needle in ("priceForPayment(calculatedPerItemTotal)", "sellerNetForPayment(calculatedPerItemTotal)", "vmtrade$onlyMatchBuyOrdersToSingleItems"):
+    if needle not in lot_mixin:
+        raise AssertionError(f"Whole-lot pricing path missing {needle}")
+market_ui=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/MarketScreenLayoutMixin.java").read_text(encoding="utf-8")
+if "vmtrade$purchaseWholeLotOnClick" not in market_ui or "return true;" not in market_ui:
+    raise AssertionError("Market clicks must request the complete listing lot")
+
 if 'intValue(payload, "quantity") < 1' not in transaction:
     raise AssertionError("Buy handler must reject zero-quantity packets")
 
