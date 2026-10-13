@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 public final class UiTextTranslations {
     private static final Pattern TIME = Pattern.compile("(\\d+)(min|ms|s|m|h|d|y)\\b");
     private static final Pattern TRADE_SUMMARY = Pattern.compile("^(\\d+)x for (.+?) (\\d+(?:[.,]\\d+)?) (.+)$");
+    private static final Pattern LOT_PRICE_BREAKDOWN = Pattern.compile(
+            "^§7Price: (.+?) (.+?) [×x] (\\d+) = (.+?) (.+)$"
+    );
     private static final Method LITERAL = findLiteralMethod();
 
     private UiTextTranslations() {}
@@ -42,6 +45,16 @@ public final class UiTextTranslations {
     public static String translate(String original) {
         if (original == null || original.isEmpty()) return original;
         String s = original;
+
+        // A lot listing's price is the total for the complete stack, not a
+        // per-item rate. Rewrite Open Trade's old "price × count = total"
+        // tooltip so players see the charge they will actually pay.
+        Matcher lotPrice = LOT_PRICE_BREAKDOWN.matcher(s);
+        if (lotPrice.matches()) {
+            return "§7Цена за весь стак: " + translateCurrencyName(
+                    lotPrice.group(1) + " " + lotPrice.group(2)
+            );
+        }
 
         // 1) Exact short labels.
         String[][] exact = {
@@ -168,7 +181,7 @@ public final class UiTextTranslations {
                 {"§7Click to manage.", "§7Нажмите, чтобы управлять."},
                 {"§7Click to buy the whole stack (", "§7Нажмите, чтобы купить весь стак ("},
                 {"§7No demand", "§7Нет спроса"},
-                {"§7Click to buy 1. §8Shift = whole stack.", "§7Нажмите, чтобы купить 1 шт. §8Shift — весь стак."},
+                {"§7Click to buy 1. §8Shift = whole stack.", "§7Нажмите, чтобы купить весь стак за указанную цену."},
                 {"§8Hold right-click for item details.", "§8Удерживайте ПКМ для информации о предмете."},
                 {"§7Remove your sell order before buying this item.", "§7Отмените своё объявление о продаже перед покупкой."},
                 {"§cYou are selling this item.", "§cВы уже продаёте этот предмет."},
