@@ -76,7 +76,12 @@ public final class LotPricingState {
 
     public static long priceForPayment(long calculatedPerItemTotal) {
         Integer lotPrice = ACTIVE_LOT_PRICE.get();
-        return lotPrice == null ? calculatedPerItemTotal : lotPrice.longValue();
+        return paymentAmount(lotPrice == null ? 0L : lotPrice.longValue(),
+                calculatedPerItemTotal, lotPrice != null);
+    }
+
+    static long paymentAmount(long lotPrice, long calculatedPerItemTotal, boolean wholeLot) {
+        return wholeLot ? lotPrice : calculatedPerItemTotal;
     }
 
     public static long sellerNetForPayment(long calculatedPerItemTotal) {
@@ -92,7 +97,11 @@ public final class LotPricingState {
     }
 
     public static long affordableQuantity(long requestedQuantity, long affordableByBalance) {
-        if (!isActive()) return Math.min(requestedQuantity, affordableByBalance);
+        return affordableQuantity(requestedQuantity, affordableByBalance, isActive());
+    }
+
+    static long affordableQuantity(long requestedQuantity, long affordableByBalance, boolean wholeLot) {
+        if (!wholeLot) return Math.min(requestedQuantity, affordableByBalance);
         // The full lot is affordable as soon as the balance covers its one total price.
         return affordableByBalance > 0 ? requestedQuantity : 0L;
     }
@@ -103,7 +112,11 @@ public final class LotPricingState {
      * This affects history display only; actual payment remains the full lot price.
      */
     public static int historyUnitPrice(int listedPrice, int quantity) {
-        if (!isActive() || quantity <= 1 || listedPrice <= 0) return listedPrice;
+        return historyUnitPrice(listedPrice, quantity, isActive());
+    }
+
+    static int historyUnitPrice(int listedPrice, int quantity, boolean wholeLot) {
+        if (!wholeLot || quantity <= 1 || listedPrice <= 0) return listedPrice;
         long rounded = (listedPrice + (long) quantity / 2L) / quantity;
         return (int) Math.max(1L, Math.min(Integer.MAX_VALUE, rounded));
     }
