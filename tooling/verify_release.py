@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 VERSION=next((line.split("=",1)[1].strip() for line in (ROOT/"gradle.properties").read_text(encoding="utf-8").splitlines() if line.startswith("version=")),None)
 if not VERSION: raise SystemExit("version= missing from gradle.properties")
 jar=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/f"build/libs/vm-trade-{VERSION}.jar"
-own=["CancelListingReturnMixin","ServerTransactionGuardMixin","StackLotPricingMixin","VmTradeUiTranslationServerMixin","UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin","TradeChestScreenPolishMixin"]
+own=["CancelListingReturnMixin","ServerTransactionGuardMixin","StackLotPricingMixin","LotPricingMigrationMixin","VmTradeUiTranslationServerMixin","UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin","TradeChestScreenPolishMixin"]
 with ZipFile(jar) as z:
     names_list=[x.filename for x in z.infolist()]; names=set(names_list)
     duplicates=sorted({n for n in names_list if names_list.count(n)>1}); assert not duplicates,duplicates
@@ -18,7 +18,7 @@ with ZipFile(jar) as z:
     main=json.loads(z.read("vmtrade.mixins.json")); custom=json.loads(z.read("vmtrade-custom.mixins.json"))
     assert main.get("package")=="net.onlyjugs.fabric.mixin" and main.get("mixins")==["MinecraftServerTickMixin","ServerPlayerGameModeMixin","MerchantOpenScreenMixin"] and main.get("client",[])==["CurrencyDisplayMixin","ItemKeysLabelMixin"]
     assert custom.get("package")=="com.puzzlechannel.vmtrade.mixin"
-    assert custom.get("mixins")==["CancelListingReturnMixin","ServerTransactionGuardMixin","StackLotPricingMixin","VmTradeUiTranslationServerMixin"]
+    assert custom.get("mixins")==["CancelListingReturnMixin","ServerTransactionGuardMixin","StackLotPricingMixin","LotPricingMigrationMixin","VmTradeUiTranslationServerMixin"]
     assert custom.get("client")==["UiTranslationClientMixin","MarketScreenLayoutMixin","MarketReturnClientMixin","TradeChestWalletOrderMixin","TradeChestScreenPolishMixin"]
     for n in own:
         p=f"com/puzzlechannel/vmtrade/mixin/{n}.class"; assert p in names,p
@@ -26,6 +26,8 @@ with ZipFile(jar) as z:
         assert f"net/onlyjugs/fabric/mixin/{n}.class" not in names
     assert "net/onlyjugs/fabric/mixin/UiTranslationServerMixin.class" not in names
     assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" not in names
+    assert "net/minecraft/world/level/storage/ValueInput.class" not in names
+    assert "net/minecraft/world/level/storage/ValueOutput.class" not in names
     for n in ["CurrencyDisplayMixin","ItemKeysLabelMixin"]:
         p=f"net/onlyjugs/fabric/mixin/{n}.class"; assert p in names,p
         assert has_class_level_mixin_annotation(z.read(p)), f"Legacy UI mixin lacks @Mixin: {p}"
