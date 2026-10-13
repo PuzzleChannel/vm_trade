@@ -44,8 +44,8 @@ with ZipFile(jar) as z:
     assert json.loads(z.read("assets/vmtrade/models/item/market.json"))["parent"]=="vmtrade:block/market"
     sell_gui=Image.open(io.BytesIO(z.read("assets/opentrade/textures/gui/trade_chest.png"))).convert("RGBA")
     assert sell_gui.size==(184,242)
-    assert sell_gui.getpixel((11,31))==(139,139,139,255), "Centered sell slot frame is missing at its target position"
-    assert sell_gui.getpixel((32,31))==(198,198,198,255), "Old sell slot frame residue remains at the previous position"
+    assert sell_gui.getpixel((7,31))==(139,139,139,255), "Centered sell slot frame is missing at its target position"
+    assert sell_gui.getpixel((26,31))==(198,198,198,255), "Old sell slot frame residue remains at the previous position"
     assert json.loads(z.read("assets/vmtrade/lang/ru_ru.json")).get("item.vmtrade.vmcoin")=="ВМуткоин (ВК)"
     assert json.loads(z.read("assets/opentrade/lang/ru_ru.json")).get("block.opentrade.trade_chest")=="Торговый сундук"
     for p in ["org/spongepowered/asm/mixin/Mixin.class","net/minecraft/network/chat/Component.class","net/minecraft/world/inventory/MenuProvider.class","net/fabricmc/api/ModInitializer.class"]: assert p not in names,p

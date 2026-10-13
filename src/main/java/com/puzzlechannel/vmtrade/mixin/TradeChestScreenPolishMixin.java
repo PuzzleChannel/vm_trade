@@ -48,7 +48,7 @@ public abstract class TradeChestScreenPolishMixin {
             int cancelWidth = 72; // Full Russian label "Снять с продажи".
             int gap = 2;
             int controlsWidth = slotFrameWidth + priceWidth + gap + listWidth + gap + cancelWidth;
-            int slotFrameX = (panelWidth - controlsWidth) / 2;
+            int slotFrameX = (panelWidth - controlsWidth) / 2 - 4; // Background origin is leftPos - 4.
 
             // Native slot/button row: buttons are 18px high; the 16px slot
             // starts one pixel lower, so their vertical centers match exactly.
@@ -78,7 +78,7 @@ public abstract class TradeChestScreenPolishMixin {
             // Buy-order cancellation is a mutually-exclusive mode, not part of the sell row.
             if (cancelBuyOrder != null) {
                 int buyWidth = readIntField(cancelBuyOrder, "width");
-                setWidgetBounds(cancelBuyOrder, left + (panelWidth - buyWidth) / 2, rowY, buyWidth);
+                setWidgetBounds(cancelBuyOrder, left + (panelWidth - buyWidth) / 2 - 4, rowY, buyWidth);
             }
 
             configurePriceInput(price);

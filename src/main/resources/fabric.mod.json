@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "vmtrade",
-  "version": "1.0.42",
+  "version": "1.0.43",
   "name": "ВМ Трейд",
   "description": "Рынок игроков и экономика на основе ВМуткоинов для Minecraft 26.2 Fabric.",
   "authors": ["PuzzleChannel"],
