@@ -112,6 +112,23 @@ public abstract class TradeChestScreenPolishMixin {
         Method maxLength = price.getClass().getMethod("setMaxLength", int.class);
         maxLength.invoke(price, 3);
 
+        // Tell sellers that this field is the total price for the complete stack.
+        try {
+            Class<?> tooltipClass = Class.forName("net.minecraft.client.gui.components.Tooltip");
+            Method createTooltip = tooltipClass.getMethod("create", Component.class);
+            Object tooltip = createTooltip.invoke(null,
+                    Component.literal("Цена за весь стак предметов, а не за одну штуку."));
+            for (Method method : price.getClass().getMethods()) {
+                if ("setTooltip".equals(method.getName()) && method.getParameterCount() == 1
+                        && method.getParameterTypes()[0].isInstance(tooltip)) {
+                    method.invoke(price, tooltip);
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Tooltip is a convenience; price input still works if the GUI API changes.
+        }
+
         Predicate<String> digitsOnly = value -> value != null && value.matches("[0-9]{0,3}");
         for (Class<?> type = price.getClass(); type != null; type = type.getSuperclass()) {
             for (Method method : type.getDeclaredMethods()) {
