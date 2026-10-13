@@ -35,6 +35,9 @@ with zipfile.ZipFile(jar) as z:
     assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" not in names
     assert "net/minecraft/world/level/storage/ValueInput.class" not in names
     assert "net/minecraft/world/level/storage/ValueOutput.class" not in names
+    assert "net/minecraft/core/GlobalPos.class" not in names
+    assert "net/minecraft/server/MinecraftServer.class" not in names
+    assert "net/minecraft/world/level/saveddata/SavedData.class" not in names
     assert "assets/opentrade/lang/en_us.json" not in names
     assert json.loads(z.read("assets/vmtrade/items/market.json"))["model"]["model"]=="vmtrade:block/market"
     assert json.loads(z.read("assets/vmtrade/models/item/market.json"))["parent"]=="vmtrade:block/market"
