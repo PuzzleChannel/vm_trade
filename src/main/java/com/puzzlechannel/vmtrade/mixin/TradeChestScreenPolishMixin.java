@@ -39,27 +39,21 @@ public abstract class TradeChestScreenPolishMixin {
             int left = readIntField(this, "leftPos");
             int panelWidth = readIntField(this, "imageWidth");
 
-            // Keep the sell slot, price input, and action buttons as one centered row.
-            // The slot's matching texture frame is moved by the same x offset in the release assets.
-            int slotWidth = 16;
-            int priceWidth = 26; // Three digits fit without the old oversized field.
-            int listWidth = Math.max(readIntField(list, "width"), 48);
-            int cancelWidth = Math.max(readIntField(cancel, "width"), 52);
+            // In GUI coordinates the staging slot is 16x16 with a one-pixel border.
+            // The texture is drawn from (leftPos - 4, topPos - 56), so its 18px
+            // frame and the actual slot are positioned as one centered row.
+            int slotFrameWidth = 18;
+            int priceWidth = 26; // Three digits, not a panel-wide input.
+            int listWidth = 52;  // Full Russian label "Выставить".
+            int cancelWidth = 72; // Full Russian label "Снять с продажи".
             int gap = 2;
-            int controlsWidth = slotWidth + gap + priceWidth + gap + listWidth + gap + cancelWidth;
-            int slotX = (panelWidth - controlsWidth) / 2;
+            int controlsWidth = slotFrameWidth + priceWidth + gap + listWidth + gap + cancelWidth;
+            int slotFrameX = (panelWidth - controlsWidth) / 2;
 
-            // StageSlot is the actual clickable/input slot in the menu. Its screen
-            // position must match the shifted 16x16 well in trade_chest.png.
-            Object menu = readField(this, "menu");
-            Object stageSlot = readField(menu, "stageSlot");
-            if (stageSlot == null) {
-                throw new NoSuchFieldException("menu.stageSlot");
-            }
-            writeIntField(stageSlot, "x", slotX);
-
+            // Native slot/button row: buttons are 18px high; the 16px slot
+            // starts one pixel lower, so their vertical centers match exactly.
             int rowY = readIntField(price, "y");
-            int priceX = slotX + slotWidth + gap;
+            int priceX = slotFrameX + slotFrameWidth;
             int listX = priceX + priceWidth + gap;
             int cancelX = listX + listWidth + gap;
 
@@ -67,7 +61,21 @@ public abstract class TradeChestScreenPolishMixin {
             setWidgetBounds(list, left + listX, rowY, listWidth);
             setWidgetBounds(cancel, left + cancelX, rowY, cancelWidth);
 
-            // The buy-order cancel control is mutually exclusive with sell controls.
+            // Reposition the actual 28th menu slot independently from widget layout:
+            // a reflection/API mismatch must never cancel the field/button correction.
+            try {
+                Object menu = readField(this, "menu");
+                Object rawSlots = readField(menu, "slots");
+                if (rawSlots instanceof java.util.List<?> slots && slots.size() > 27) {
+                    writeIntField(slots.get(27), "x", slotFrameX + 1);
+                } else {
+                    throw new NoSuchFieldException("menu.slots[27]");
+                }
+            } catch (ReflectiveOperationException | RuntimeException slotException) {
+                System.err.println("[VM Trade] Could not center sale slot: " + slotException.getMessage());
+            }
+
+            // Buy-order cancellation is a mutually-exclusive mode, not part of the sell row.
             if (cancelBuyOrder != null) {
                 int buyWidth = readIntField(cancelBuyOrder, "width");
                 setWidgetBounds(cancelBuyOrder, left + (panelWidth - buyWidth) / 2, rowY, buyWidth);

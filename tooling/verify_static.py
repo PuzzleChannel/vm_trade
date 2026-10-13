@@ -3,6 +3,10 @@ import json, sys, zipfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = next((line.split("=", 1)[1].strip() for line in (ROOT / "gradle.properties").read_text(encoding="utf-8").splitlines() if line.startswith("version=")), None)
+layout_source = (ROOT / "src/main/java/com/puzzlechannel/vmtrade/mixin/TradeChestScreenPolishMixin.java").read_text(encoding="utf-8")
+assert 'int rowY = readIntField(price, "y");' in layout_source
+assert 'readIntField(price, "y") + 12' not in layout_source
+assert "int priceWidth = 26;" in layout_source and "int listWidth = 52;" in layout_source and "int cancelWidth = 72;" in layout_source
 if not VERSION: raise SystemExit("version= missing from gradle.properties")
 jar = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / f"build/libs/vm-trade-{VERSION}.jar"
 own = ["CancelListingReturnMixin", "ServerTransactionGuardMixin", "StackLotPricingMixin", "LotPricingMigrationMixin", "VmTradeUiTranslationServerMixin", "UiTranslationClientMixin", "MarketScreenLayoutMixin", "MarketReturnClientMixin", "TradeChestWalletOrderMixin", "TradeChestScreenPolishMixin"]
