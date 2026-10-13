@@ -26,7 +26,6 @@ public abstract class LotPricingMigrationMixin {
         if (input.getIntOr(VMTRADE_PRICE_VERSION_KEY, 0) >= VMTRADE_PRICE_VERSION) return;
 
         TradeChestBlockEntity chest = (TradeChestBlockEntity) (Object) this;
-        boolean changed = false;
         for (int slot = 0; slot < 27; slot++) {
             Listing listing = chest.getListing(slot);
             if (listing == null) continue;
@@ -39,10 +38,11 @@ public abstract class LotPricingMigrationMixin {
 
             int migratedPrice = LotPricingState.migrateLegacyUnitPrice(oldPerItemPrice, stack.getCount());
             chest.setListing(slot, Listing.forSale(migratedPrice));
-            changed = true;
         }
 
-        if (changed) chest.setChanged();
+        // Persist the marker even when this chest had no multi-item listings;
+        // otherwise a newly created listing could be migrated again on a later save.
+        chest.setChanged();
     }
 
     @Inject(method = "saveAdditional", at = @At("TAIL"), remap = false, require = 1)
