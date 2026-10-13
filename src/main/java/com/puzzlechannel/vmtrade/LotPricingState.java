@@ -84,7 +84,7 @@ public final class LotPricingState {
         return wholeLot ? lotPrice : calculatedPerItemTotal;
     }
 
-    static int migrateLegacyUnitPrice(int oldPerItemPrice, int stackCount) {
+    public static int migrateLegacyUnitPrice(int oldPerItemPrice, int stackCount) {
         if (oldPerItemPrice <= 0 || stackCount <= 1) return oldPerItemPrice;
         long total = (long) oldPerItemPrice * stackCount;
         return (int) Math.min(Integer.MAX_VALUE, total);
