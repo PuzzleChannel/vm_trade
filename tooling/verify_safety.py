@@ -68,7 +68,7 @@ if "requested != actualCount" not in lot_state or "ACTIVE_LOT_PRICE.set(expected
 if "LotPricingState.beginUniquePurchase(payload, player)" not in transaction:
     raise AssertionError("Server guard does not bind validated whole-lot pricing context")
 migration=(ROOT/"src/main/java/com/puzzlechannel/vmtrade/mixin/LotPricingMigrationMixin.java").read_text(encoding="utf-8")
-for needle in ('"VmTradeLotPricingVersion"', 'getIntOr(VMTRADE_PRICE_VERSION_KEY, 0)', 'oldPerItemPrice * stack.getCount()', 'output.putInt(VMTRADE_PRICE_VERSION_KEY, VMTRADE_PRICE_VERSION)'):
+for needle in ('"VmTradeLotPricingVersion"', 'getIntOr(VMTRADE_PRICE_VERSION_KEY, 0)', 'LotPricingState.migrateLegacyUnitPrice(oldPerItemPrice, stack.getCount())', 'output.putInt(VMTRADE_PRICE_VERSION_KEY, VMTRADE_PRICE_VERSION)'):
     if needle not in migration:
         raise AssertionError(f"Existing listing price migration is incomplete: {needle}")
 
