@@ -117,7 +117,7 @@ public abstract class TradeChestScreenPolishMixin {
             Class<?> tooltipClass = Class.forName("net.minecraft.client.gui.components.Tooltip");
             Method createTooltip = tooltipClass.getMethod("create", Component.class);
             Object tooltip = createTooltip.invoke(null,
-                    Component.literal("Цена за весь стак в центах ВМуткоина, а не за одну штуку."));
+                    Component.literal("Цена указана за весь стак, не за одну штуку."));
             for (Method method : price.getClass().getMethods()) {
                 if ("setTooltip".equals(method.getName()) && method.getParameterCount() == 1
                         && method.getParameterTypes()[0].isInstance(tooltip)) {
