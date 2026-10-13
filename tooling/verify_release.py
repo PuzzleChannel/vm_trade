@@ -28,6 +28,9 @@ with ZipFile(jar) as z:
     assert "net/onlyjugs/fabric/mixin/UiTranslationClientMixin.class" not in names
     assert "net/minecraft/world/level/storage/ValueInput.class" not in names
     assert "net/minecraft/world/level/storage/ValueOutput.class" not in names
+    assert "net/minecraft/core/GlobalPos.class" not in names
+    assert "net/minecraft/server/MinecraftServer.class" not in names
+    assert "net/minecraft/world/level/saveddata/SavedData.class" not in names
     for n in ["CurrencyDisplayMixin","ItemKeysLabelMixin"]:
         p=f"net/onlyjugs/fabric/mixin/{n}.class"; assert p in names,p
         assert has_class_level_mixin_annotation(z.read(p)), f"Legacy UI mixin lacks @Mixin: {p}"
