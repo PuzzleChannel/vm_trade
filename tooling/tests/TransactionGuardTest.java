@@ -24,6 +24,17 @@ public final class TransactionGuardTest {
         require(TransactionGuard.allow(player, "buy", collisionB, 101L), "distinct payload with same Java String hash should pass");
         require(!TransactionGuard.allow(player, "buy", collisionA, 102L), "exact replay should still be blocked");
 
+        require(LotPricingState.paymentAmount(100L, 6_400L, true) == 100L,
+                "64 items listed for 100 cents must cost 100 cents total");
+        require(LotPricingState.paymentAmount(100L, 6_400L, false) == 6_400L,
+                "legacy per-item calculation must be preserved outside whole-lot purchases");
+        require(LotPricingState.affordableQuantity(64L, 1L, true) == 64L,
+                "a balance covering one full-lot price must allow all 64 items");
+        require(LotPricingState.affordableQuantity(64L, 0L, true) == 0L,
+                "a balance below the full-lot price must reject the purchase");
+        require(LotPricingState.historyUnitPrice(100, 64, true) == 2,
+                "history chart should retain a rounded per-item estimate for a whole-lot trade");
+
         TransactionGuard.resetForTests();
         UUID spammer = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         for (int i = 0; i < 12; i++) {
