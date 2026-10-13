@@ -22,6 +22,22 @@ public abstract class MarketScreenLayoutMixin {
             "^(?:Баланс:\\s*)?([0-9][0-9,._ ]*)\\s+(?:ВМуткоин\\s*\\(ВК\\)|ВК|VMCoin(?:\\s*\\(VC\\))?|VC)$"
     );
 
+    /**
+     * A market listing price is the total for the lot, so a click purchases
+     * the complete lot. Keep the original screen's shift-click tooltip unchanged.
+     */
+    @org.spongepowered.asm.mixin.injection.Redirect(
+            method = "mouseClicked",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/onlyjugs/client/screen/MarketScreen;isShiftHeld()Z",
+                    remap = false),
+            remap = false,
+            require = 1
+    )
+    private static boolean vmtrade$purchaseWholeLotOnClick() {
+        return true;
+    }
+
     @ModifyArgs(method = "renderRightPanel", at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;text(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)V"
