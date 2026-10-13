@@ -5,6 +5,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.onlyjugs.block.TradeChestBlockEntity;
 import net.onlyjugs.data.Listing;
+import com.puzzlechannel.vmtrade.LotPricingState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LotPricingMigrationMixin {
     private static final String VMTRADE_PRICE_VERSION_KEY = "VmTradeLotPricingVersion";
     private static final int VMTRADE_PRICE_VERSION = 1;
-    private static final int MAX_STORED_PRICE = Integer.MAX_VALUE;
 
     @Inject(method = "loadAdditional", at = @At("TAIL"), remap = false, require = 1)
     private void vmtrade$migrateExistingLotPrices(ValueInput input, CallbackInfo ci) {
@@ -37,8 +37,7 @@ public abstract class LotPricingMigrationMixin {
             int oldPerItemPrice = listing.unitPrice();
             if (oldPerItemPrice <= 0) continue;
 
-            long totalPrice = (long) oldPerItemPrice * stack.getCount();
-            int migratedPrice = (int) Math.min(MAX_STORED_PRICE, totalPrice);
+            int migratedPrice = LotPricingState.migrateLegacyUnitPrice(oldPerItemPrice, stack.getCount());
             chest.setListing(slot, Listing.forSale(migratedPrice));
             changed = true;
         }
