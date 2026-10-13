@@ -5,9 +5,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.onlyjugs.block.TradeChestBlockEntity;
-import net.onlyjugs.data.BuyOrder;
-import net.onlyjugs.data.BuyOrderBook;
 import net.onlyjugs.net.OpenTradeNet;
+import net.onlyjugs.data.TradeHistory;
+import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -71,6 +71,22 @@ public abstract class StackLotPricingMixin {
     )
     private static long vmtrade$calculateSellerProceedsFromLotPrice(long calculatedPerItemTotal) {
         return LotPricingState.sellerNetForPayment(calculatedPerItemTotal);
+    }
+
+    @Redirect(
+            method = "handleBuyUniqueStack",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/onlyjugs/data/TradeHistory;record(Lnet/minecraft/server/MinecraftServer;Ljava/lang/String;II)V",
+                    remap = false
+            ),
+            remap = false,
+            require = 1
+    )
+    private static void vmtrade$recordPerItemHistoryPrice(
+            TradeHistory history, MinecraftServer server, String itemKey, int listedPrice, int quantity
+    ) {
+        history.record(server, itemKey, LotPricingState.historyUnitPrice(listedPrice, quantity), quantity);
     }
 
     /**
