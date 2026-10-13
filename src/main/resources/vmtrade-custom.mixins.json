@@ -6,6 +6,7 @@
     "CancelListingReturnMixin",
     "ServerTransactionGuardMixin",
     "StackLotPricingMixin",
+    "LotPricingMigrationMixin",
     "VmTradeUiTranslationServerMixin"
   ],
   "client": [
