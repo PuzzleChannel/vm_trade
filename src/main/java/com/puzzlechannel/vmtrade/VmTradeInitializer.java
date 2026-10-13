@@ -47,8 +47,19 @@ public final class VmTradeInitializer implements ModInitializer {
         installCreativeEntries();
     }
 
+    @SuppressWarnings("unchecked")
     private static void registerCoin() {
-        VMCOIN = Registry.register(registry("ITEM"), VMCOIN_KEY,
+        Registry<Item> items = (Registry<Item>) registry("ITEM");
+
+        // Another installed mod may already have registered the shared VM Coin ID.
+        // Reuse that item instead of crashing on a duplicate registry key.
+        Item existing = items.getValue(VMCOIN_KEY);
+        if (existing != null) {
+            VMCOIN = existing;
+            return;
+        }
+
+        VMCOIN = Registry.register(items, VMCOIN_KEY,
                 new Item(new Item.Properties().setId(VMCOIN_KEY).stacksTo(1000)));
     }
 
