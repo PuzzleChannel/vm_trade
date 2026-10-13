@@ -37,8 +37,8 @@ jobs:
       - name: Test server transaction guard invariants
         run: |
           mkdir -p build/guard-test-classes
-          javac --release 21 -cp "build/classes/java/main:build/api-stubs.jar" -d build/guard-test-classes tooling/tests/TransactionGuardTest.java
-          java -cp "build/guard-test-classes:build/classes/java/main:build/api-stubs.jar" com.puzzlechannel.vmtrade.TransactionGuardTest
+          javac --release 21 -cp "build/classes/java/main:build/api-stubs.jar:vendor/open-trade-1.4.2.jar" -d build/guard-test-classes tooling/tests/TransactionGuardTest.java
+          java -cp "build/guard-test-classes:build/classes/java/main:build/api-stubs.jar:vendor/open-trade-1.4.2.jar" com.puzzlechannel.vmtrade.TransactionGuardTest
 
       - name: Verify release structure
         run: |
