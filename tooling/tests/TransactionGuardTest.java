@@ -26,6 +26,11 @@ public final class TransactionGuardTest {
 
         require(LotPricingState.paymentAmount(100L, 6_400L, true) == 100L,
                 "64 items listed for 100 cents must cost 100 cents total");
+        require(LotPricingState.migrateLegacyUnitPrice(100, 64) == 6_400,
+                "old 1-coin-per-item listing must migrate to 64 coins total for 64 items");
+        require(LotPricingState.migrateLegacyUnitPrice(100, 1) == 100,
+                "single-item listing price must stay unchanged during migration");
+
         require(LotPricingState.paymentAmount(100L, 6_400L, false) == 6_400L,
                 "legacy per-item calculation must be preserved outside whole-lot purchases");
         require(LotPricingState.affordableQuantity(64L, 1L, true) == 64L,
