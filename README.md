@@ -18,6 +18,14 @@ Original Open Trade UI strings that are hard-coded with `Component.literal(...)`
 
 The release build copies the pristine vendor Open Trade classes unchanged and only adds VM Trade classes/resources while excluding the original Convert-button mixin and NeoForge loader content.
 
+## Sell listing price semantics
+
+A sell listing price is the **total price for the full stack in that slot**, not the price of each item. For example, a stack of 64 iron ingots listed for 100 cents (1 VМуткоин) is purchased as 64 ingots for 1 VМуткоин total. Market clicks purchase the complete lot, and the server rejects partial-quantity purchase packets. The item-price history chart continues to show a rounded per-item estimate because its legacy format stores whole cents.
+
+Buy orders retain their existing per-item price and quantity semantics. Automatic matching therefore skips multi-item sell lots instead of applying a per-item buy order to a whole-lot price; one-item listings continue to match normally.
+
+Existing listings are migrated once when their trade chest is next loaded: the previous per-item price is multiplied by the current stack count to preserve the old total value. Sellers can then cancel and relist a stack at their preferred total price.
+
 ## Currency stack size
 
 VМуткоин (ВК) has a maximum stack size of 1000 per slot so large market balances occupy less inventory space.
