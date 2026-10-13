@@ -30,7 +30,7 @@ with ZipFile(jar_path) as release, ZipFile(vendor_path) as vendor:
         b=release.read(p)
         if not has_class_level_mixin_annotation(b): raise AssertionError(f"Configured class lacks class-level RuntimeInvisibleAnnotations @Mixin: {p}")
         if f"net/onlyjugs/fabric/mixin/{n}.class" in names: raise AssertionError(f"Legacy mixin namespace leaked: {n}")
-    for p in ("org/spongepowered/asm/mixin/Mixin.class","net/minecraft/network/chat/Component.class","net/minecraft/world/inventory/MenuProvider.class","net/fabricmc/api/ModInitializer.class","net/minecraft/world/level/storage/ValueInput.class","net/minecraft/world/level/storage/ValueOutput.class"):
+    for p in ("org/spongepowered/asm/mixin/Mixin.class","net/minecraft/network/chat/Component.class","net/minecraft/world/inventory/MenuProvider.class","net/fabricmc/api/ModInitializer.class","net/minecraft/world/level/storage/ValueInput.class","net/minecraft/world/level/storage/ValueOutput.class","net/minecraft/core/GlobalPos.class","net/minecraft/server/MinecraftServer.class","net/minecraft/world/level/saveddata/SavedData.class"):
         if p in names: raise AssertionError(f"Development stub leaked: {p}")
     for p in ("net/onlyjugs/client/screen/MarketScreen.class","net/onlyjugs/client/screen/TradeChestScreen.class","net/onlyjugs/net/OpenTradeNet.class","net/onlyjugs/OpenTradeConfig.class"):
         if p not in names or p not in vendor.namelist() or release.read(p)!=vendor.read(p): raise AssertionError(f"Critical upstream class missing/modified: {p}")
