@@ -60,6 +60,8 @@ EXPLICIT = {
     '§eBuy order: 3× @ 5 E': '§eЗаявка на покупку: 3× по 5 ВК',
     '§7Stock: 3 / 64': '§7В наличии: 3 / 64',
     '§7Price: 5 VMCoin (VC)s': '§7Цена: 5 ВМуткоин (ВК)',
+    '§7Price: 1 VMCoin (VC)s × 64 = 64 VMCoin (VC)s': '§7Цена за весь стак: 1 ВМуткоин (ВК)',
+
     '§7No listings yet.': '§7Объявлений пока нет.',
     "§cCan't buy the whole stack — buy one at a time.": "§cНельзя купить весь стак — покупайте по одному.",
     '§cNo listings at that price anymore.': '§cПо этой цене объявлений больше нет.',
