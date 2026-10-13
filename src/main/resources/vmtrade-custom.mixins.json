@@ -5,6 +5,7 @@
   "mixins": [
     "CancelListingReturnMixin",
     "ServerTransactionGuardMixin",
+    "StackLotPricingMixin",
     "VmTradeUiTranslationServerMixin"
   ],
   "client": [
