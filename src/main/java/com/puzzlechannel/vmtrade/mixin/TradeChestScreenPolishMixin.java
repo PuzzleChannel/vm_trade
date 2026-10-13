@@ -38,19 +38,36 @@ public abstract class TradeChestScreenPolishMixin {
 
             int left = readIntField(this, "leftPos");
             int panelWidth = readIntField(this, "imageWidth");
-            int priceWidth = 26; // Fits three Minecraft-font digits and the caret.
-            int listWidth = readIntField(list, "width");
-            int cancelWidth = readIntField(cancel, "width");
+
+            // Keep the sell slot, price input, and action buttons as one centered row.
+            // The slot's matching texture frame is moved by the same x offset in the release assets.
+            int slotWidth = 16;
+            int priceWidth = 26; // Three digits fit without the old oversized field.
+            int listWidth = Math.max(readIntField(list, "width"), 48);
+            int cancelWidth = Math.max(readIntField(cancel, "width"), 52);
             int gap = 2;
-            int controlsWidth = priceWidth + gap + listWidth + gap + cancelWidth;
-            int startX = left + (panelWidth - controlsWidth) / 2;
-            int rowY = readIntField(price, "y") + 12;
+            int controlsWidth = slotWidth + gap + priceWidth + gap + listWidth + gap + cancelWidth;
+            int slotX = (panelWidth - controlsWidth) / 2;
 
-            setWidgetBounds(price, startX, rowY, priceWidth);
-            setWidgetBounds(list, startX + priceWidth + gap, rowY, listWidth);
-            setWidgetBounds(cancel, startX + priceWidth + gap + listWidth + gap, rowY, cancelWidth);
+            // StageSlot is the actual clickable/input slot in the menu. Its screen
+            // position must match the shifted 16x16 well in trade_chest.png.
+            Object menu = readField(this, "menu");
+            Object stageSlot = readField(menu, "stageSlot");
+            if (stageSlot == null) {
+                throw new NoSuchFieldException("menu.stageSlot");
+            }
+            writeIntField(stageSlot, "x", slotX);
 
-            // The buy-order cancel control is mutually exclusive with the sell controls.
+            int rowY = readIntField(price, "y");
+            int priceX = slotX + slotWidth + gap;
+            int listX = priceX + priceWidth + gap;
+            int cancelX = listX + listWidth + gap;
+
+            setWidgetBounds(price, left + priceX, rowY, priceWidth);
+            setWidgetBounds(list, left + listX, rowY, listWidth);
+            setWidgetBounds(cancel, left + cancelX, rowY, cancelWidth);
+
+            // The buy-order cancel control is mutually exclusive with sell controls.
             if (cancelBuyOrder != null) {
                 int buyWidth = readIntField(cancelBuyOrder, "width");
                 setWidgetBounds(cancelBuyOrder, left + (panelWidth - buyWidth) / 2, rowY, buyWidth);

@@ -50,7 +50,7 @@ jobs:
       - name: Upload release JAR
         uses: actions/upload-artifact@v4
         with:
-          name: VMTrade-1.0.40
+          name: VMTrade-1.0.41
           path: |
             build/libs/vm-trade-*.jar
             !build/libs/*-sources.jar

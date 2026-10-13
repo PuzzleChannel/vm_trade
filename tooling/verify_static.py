@@ -12,7 +12,7 @@ with zipfile.ZipFile(jar) as z:
     assert meta.get("depends",{}).get("minecraft")==">=26.2 <26.3"
     assert "vmtrade.mixins.json" in meta.get("mixins",[]) and "vmtrade-custom.mixins.json" in meta.get("mixins",[])
     assert meta.get("accessWidener")=="opentrade.accesswidener" and "opentrade.accesswidener" in names
-    for p in ["vmtrade.mixins.json","vmtrade-custom.mixins.json","assets/vmtrade/lang/ru_ru.json","assets/opentrade/lang/ru_ru.json","assets/vmtrade/models/block/market.json","assets/vmtrade/items/market.json","assets/vmtrade/models/item/market.json","assets/vmtrade/blockstates/market.json","assets/vmtrade/textures/block/market_front.png","assets/vmtrade/textures/block/market_side.png","assets/vmtrade/textures/block/market_top.png","assets/vmtrade/textures/block/market_bottom.png"]:
+    for p in ["vmtrade.mixins.json","vmtrade-custom.mixins.json","assets/vmtrade/lang/ru_ru.json","assets/opentrade/lang/ru_ru.json","assets/opentrade/textures/gui/trade_chest.png","assets/vmtrade/models/block/market.json","assets/vmtrade/items/market.json","assets/vmtrade/models/item/market.json","assets/vmtrade/blockstates/market.json","assets/vmtrade/textures/block/market_front.png","assets/vmtrade/textures/block/market_side.png","assets/vmtrade/textures/block/market_top.png","assets/vmtrade/textures/block/market_bottom.png"]:
         assert p in names,p
     main=json.loads(z.read("vmtrade.mixins.json")); custom=json.loads(z.read("vmtrade-custom.mixins.json"))
     assert main.get("package")=="net.onlyjugs.fabric.mixin"

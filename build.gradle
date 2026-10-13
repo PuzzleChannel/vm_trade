@@ -68,6 +68,7 @@ tasks.jar {
             exclude 'fabric.mod.json'
             exclude 'opentrade-fabric.mixins.json'
             exclude 'assets/opentrade/lang/en_us.json'
+            exclude 'assets/opentrade/textures/gui/trade_chest.png' // Custom slot frame aligned with the client menu slot
             exclude 'net/onlyjugs/fabric/mixin/AbstractContainerScreenInitMixin.class'
             // VM Trade-owned mixins are isolated from Open Trade's package.
             exclude 'net/onlyjugs/fabric/mixin/CancelListingReturnMixin.class'
@@ -132,6 +133,7 @@ tasks.register('verifyJar') {
                 'vmtrade-custom.mixins.json',
                 'opentrade.accesswidener',
                 'assets/opentrade/lang/ru_ru.json',
+                'assets/opentrade/textures/gui/trade_chest.png',
                 'assets/vmtrade/lang/ru_ru.json',
                 'assets/vmtrade/textures/item/vmcoin.png',
                 'assets/vmtrade/models/item/vmcoin.json',
