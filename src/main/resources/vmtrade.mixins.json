@@ -5,12 +5,11 @@
   "mixins": [
     "MinecraftServerTickMixin",
     "ServerPlayerGameModeMixin",
-    "MerchantOpenScreenMixin",
-    "UiTranslationServerMixin",
-    "CancelListingReturnMixin"
+    "MerchantOpenScreenMixin"
   ],
   "client": [
-    "UiTranslationClientMixin"
+    "CurrencyDisplayMixin",
+    "ItemKeysLabelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

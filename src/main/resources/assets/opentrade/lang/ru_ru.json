@@ -1,13 +1,19 @@
 {
   "block.opentrade.trade_chest": "Торговый сундук",
   "container.opentrade.trade_chest": "Торговый сундук",
+  "block.opentrade.market": "Маркет",
   "container.opentrade.market": "Маркет",
   "container.opentrade.villager_trade": "Торговец",
   "opentrade.button.convert": "",
-  "opentrade.button.list": "Выставить на продажу",
-  "opentrade.button.cancel": "Отменить объявление",
+  "opentrade.button.list": "Выставить",
+  "opentrade.button.cancel": "Снять",
   "opentrade.button.market": "Маркет…",
-  "opentrade.button.deposit": "+1 ВК",
-  "opentrade.button.withdraw": "−1 ВК",
-  "opentrade.label.wallet": "Кошелёк"
+  "opentrade.button.deposit": "Пополнить",
+  "opentrade.button.withdraw": "Вывести",
+  "opentrade.label.wallet": "Кошелёк",
+  "opentrade.market.no_trades": "Сделок пока нет.",
+  "opentrade.market.no_listings": "Объявлений пока нет.",
+  "opentrade.market.no_sell_orders": "Заявок на продажу пока нет.",
+  "opentrade.market.no_buy_orders": "Заявок на покупку пока нет.",
+  "opentrade.market.no_history": "История пока пуста."
 }

@@ -18,6 +18,30 @@ Original Open Trade UI strings that are hard-coded with `Component.literal(...)`
 
 The release build copies the pristine vendor Open Trade classes unchanged and only adds VM Trade classes/resources while excluding the original Convert-button mixin and NeoForge loader content.
 
+## Sell listing price semantics
+
+A sell listing price is the **total price for the full stack in that slot**, not the price of each item. For example, a stack of 64 iron ingots listed for 100 cents (1 VМуткоин) is purchased as 64 ingots for 1 VМуткоин total. Market clicks purchase the complete lot, and the server rejects partial-quantity purchase packets. The item-price history chart continues to show a rounded per-item estimate because its legacy format stores whole cents.
+
+Buy orders retain their existing per-item price and quantity semantics. Automatic matching therefore skips multi-item sell lots instead of applying a per-item buy order to a whole-lot price; one-item listings continue to match normally.
+
+Existing listings are migrated once when their trade chest is next loaded: the previous per-item price is multiplied by the current stack count to preserve the old total value. Sellers can then cancel and relist a stack at their preferred total price.
+
 ## Currency stack size
 
 VМуткоин (ВК) has a maximum stack size of 1000 per slot so large market balances occupy less inventory space.
+
+## Build and release checks
+
+Use Java 25 and run these from the repository root:
+
+```bash
+./gradlew --no-daemon clean build verifyJar
+python tooling/verify_static.py
+python tooling/verify_release.py
+python tooling/verify_safety.py
+python tooling/verify_translation.py
+```
+
+The release checks verify the mod metadata/version, required resources and mixins, absence of development stubs, duplicate ZIP entries, and byte-for-byte preservation of critical Open Trade classes. The checks are also run by GitHub Actions on pushes and pull requests.
+
+These are archive-integrity and regression checks, not proof against every in-game exploit. Before deploying an update, test on a backup world with two clients: simultaneous purchase of one listing, repeated clicks/packets, cancellation followed by relog, full inventory, disconnect during purchase, and server restart while listings/deliveries exist.

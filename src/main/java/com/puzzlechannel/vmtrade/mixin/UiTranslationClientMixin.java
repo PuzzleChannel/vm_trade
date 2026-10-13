@@ -1,23 +1,25 @@
-package net.onlyjugs.fabric.mixin;
+package com.puzzlechannel.vmtrade.mixin;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Runtime-only translation hook for server/player-facing Open Trade messages.
- * The pristine Open Trade bytecode remains unchanged on disk.
+ * Runtime-only translation hook for the original Open Trade client screens.
+ * No vendor .class file is rewritten in the JAR; Mixin applies this redirect
+ * only in memory when Minecraft loads the screen classes.
  */
 @Mixin(targets = {
-        "net.onlyjugs.net.OpenTradeNet",
-        "net.onlyjugs.net.OpenTradeNet$1",
-        "net.onlyjugs.net.OpenTradeNet$2",
-        "net.onlyjugs.net.OpenTradeNet$3",
-        "net.onlyjugs.net.OpenTradeNet$4",
-        "net.onlyjugs.OpenTrade"
+        "net.onlyjugs.client.screen.MarketScreen",
+        "net.onlyjugs.client.screen.TradeChestScreen",
+        "net.onlyjugs.client.screen.VillagerTradeScreen",
+        "com.puzzlechannel.vmtrade.TradeChestClientUi",
+        "com.puzzlechannel.vmtrade.TradeChestClientUi$UiState",
+        "com.puzzlechannel.vmtrade.VmTradeUiHooks"
 })
-public abstract class UiTranslationServerMixin {
+public abstract class UiTranslationClientMixin {
     @Redirect(
             method = "*",
             at = @At(
