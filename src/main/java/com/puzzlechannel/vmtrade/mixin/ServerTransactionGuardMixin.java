@@ -1,6 +1,8 @@
 package com.puzzlechannel.vmtrade.mixin;
 
 import com.puzzlechannel.vmtrade.TransactionGuard;
+import com.puzzlechannel.vmtrade.LotPricingState;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,7 +31,16 @@ public abstract class ServerTransactionGuardMixin {
                 || intValue(payload, "requestedQty") < 1 || intValue(payload, "requestedQty") > 1000) {
             ci.cancel(); return;
         }
-        guard(player, "buy-unique", payload, ci);
+        if (!TransactionGuard.allow(player, "buy-unique", payload)) {
+            ci.cancel();
+            return;
+        }
+        if (!LotPricingState.beginUniquePurchase(payload, player)) {
+            player.sendSystemMessage(Component.literal(
+                    "§cПокупка доступна только целым стаком. Обновите маркет и попробуйте снова."
+            ), true);
+            ci.cancel();
+        }
     }
 
     @Inject(method = "handleWallet", at = @At("HEAD"), cancellable = true, remap = false)
